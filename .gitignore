@@ -1,46 +1,28 @@
+# ================================ #
+# An inverted .gitignore for Unity #
+# ================================ #
+
+# Ignore Everything By Default
 /*
 
-# Windows image file caches
-Thumbs.db
-ehthumbs.db
-
-# Folder config file
-Desktop.ini
-
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
-
-# Windows Installer files
-*.cab
-*.msi
-*.msm
-*.msp
-
-# =========================
-# Operating System Files
-# =========================
-
-# OSX
-# =========================
-
+# OS generated
 .DS_Store
-.AppleDouble
-.LSOverride
-
-# Icon must ends with two \r.
-Icon
-
-# Thumbnails
+.DS_Store?
 ._*
-
-# Files that might appear on external disk
 .Spotlight-V100
 .Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
 
+# Plugins
+Assets/AssetStoreTools/
+Assets/UnityVS/
+
+# What we want to keep (inverted)
 !*.unitypackage
 !.gitignore
 !ProjectSettings/
-
 !Assets/
-!LICENSE.txt
+!LICENSE
 !README.md

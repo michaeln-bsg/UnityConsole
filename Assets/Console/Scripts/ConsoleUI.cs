@@ -1,11 +1,10 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using System;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.EventSystems;
-using System;
-using System.Collections;
+using UnityEngine.UI;
 
-namespace Wenzil.Console
-{
+namespace Wenzil.Console {
 
 	/// <summary>
 	/// The interactive front-end of the Console.
@@ -13,76 +12,87 @@ namespace Wenzil.Console
 	///
 	[DisallowMultipleComponent]
 	[RequireComponent(typeof(ConsoleController))]
-	public class ConsoleUI : MonoBehaviour, IScrollHandler
-	{
+	public class ConsoleUI : MonoBehaviour, IScrollHandler {
 		public event Action<bool> onToggleConsole;
-		public event Action<string> onSubmitCommand;
-		public event Action onClearConsole;
+		public event Action<string, string> onSubmitCommand;
 
 		public bool isConsoleOpen { get; private set; }
 
 		public Scrollbar scrollbar;
-		public Text outputText;
-		public InputField inputField;
+		public Text outputText, selected;
+		public ConsoleInputField inputField;
 		public CanvasGroup togglableContent;
+
 
 		[SerializeField, Range(0f, 1f)]
 		private float onAlpha = 0.75f;
 
-		void Awake()
-		{
-			if (!enabled)
-				CloseConsole();
+		void Start() {
+			CloseConsole();
+			inputField.OnTabEntered += inputField_OnTabEntered;
 		}
 
-		void OnEnable()
-		{
-			inputField.onSubmit.AddListener(OnSubmit);
+		void inputField_OnTabEntered() {
+			var text = inputField.userText;
+			if(text.Length == 0)
+				return;
+
+			var matching = CommandDatabase.database.SelectMany(c => c.aliases).Where(a => a.StartsWith(text, StringComparison.CurrentCultureIgnoreCase));
+
+			if(matching.Count() == 0)
+				return;
+			else if(matching.Count() == 1)
+				SetInput(matching.First());
+			else
+				Console.Log(string.Join("\n", matching.ToArray()));
+		}
+
+		void OnEnable() {
 			OpenConsole();
 		}
 
-		void OnDisable()
-		{
-			inputField.onSubmit.RemoveListener(OnSubmit);
+		void OnDisable() {
 			CloseConsole();
 		}
 
-		public void OnSubmit(string input)
-		{
-			if (input.Length > 0)
-			{
-				if (onSubmitCommand != null)
-					onSubmitCommand(input);
-				scrollbar.value = 0;
-				ClearInput();
-			}
-		
-			// have to delay, otherwise the enter key writes a newline into the freshly cleared input field
-			this.Invoke(ActivateInputField, 0.1f);
+		void Update() {
+			if(inputField.isFocused && inputField.userText.Length > 0 && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)))
+				OnEndEdit();
+
+			//if(isConsoleOpen &&
+			//EventSystem.current.currentSelectedGameObject != inputField.gameObject &&
+			//EventSystem.current.currentSelectedGameObject != scrollbar.gameObject &&
+			//EventSystem.current.currentSelectedGameObject != outputText.gameObject)
+			//	ActivateInputField();
 		}
-	
-		public void OnScroll(PointerEventData eventData)
-		{
+
+		void OnEndEdit() {
+			if(onSubmitCommand != null)
+				onSubmitCommand(inputField.fieldHeader, inputField.userText);
+			scrollbar.value = 0;
+			ClearInput();
+
+			// have to delay, otherwise the enter key writes a newline into the freshly cleared input field
+			Invoke("ActivateInputField", 0.1f);
+		}
+
+		public void OnScroll(PointerEventData eventData) {
 			scrollbar.value += eventData.scrollDelta.y;
 		}
 
-		public void OpenConsole()
-		{
+		public void OpenConsole() {
 			ToggleConsole(true);
 		}
 
-		public void CloseConsole()
-		{
+		public void CloseConsole() {
 			ToggleConsole(false);
 		}
 
-		public void ToggleConsole()
-		{
+		public void ToggleConsole() {
 			ToggleConsole(!isConsoleOpen);
 		}
 
-		public void ToggleConsole(bool open)
-		{
+		public void ToggleConsole(bool open) {
 			isConsoleOpen = open;
 			enabled = open;
 			togglableContent.interactable = open;
@@ -90,7 +100,7 @@ namespace Wenzil.Console
 
 			ClearInput();
 			if(open)
-				this.Invoke(ActivateInputField, 0.1f); // have to delay, otherwise the toggle key is written into the input field
+				Invoke("ActivateInputField", 0.1f); // have to delay, otherwise the toggle key is written into the input field
 			else
 				DeactivateInputField();
 
@@ -98,38 +108,31 @@ namespace Wenzil.Console
 				onToggleConsole(open);
 		}
 
-		public void AddNewOutputLine(string line)
-		{
+		public void AddNewOutputLine(string line) {
 			outputText.text += Environment.NewLine + line;
 		}
 
-		public void ClearOutput()
-		{
+		public void ClearOutput() {
 			outputText.text = "";
-			if(onClearConsole != null)
-				onClearConsole();
 		}
 
-		public void ClearInput()
-		{
+		public void ClearInput() {
 			SetInput("");
 		}
 
 		public void SetInput(string input) {
-			inputField.value = input;
+			inputField.text = input;
+			inputField.MoveTextEnd(false);
 		}
 
-		public void ActivateInputField()
-		{
-			EventSystemManager.currentSystem.SetSelectedGameObject(scrollbar.gameObject, null);
-			EventSystemManager.currentSystem.SetSelectedGameObject(inputField.gameObject, null);
-			inputField.OnPointerClick(null);
+		public void ActivateInputField() {
+			EventSystem.current.SetSelectedGameObject(scrollbar.gameObject, null);
+			EventSystem.current.SetSelectedGameObject(inputField.gameObject, null);
 		}
 
-		public void DeactivateInputField()
-		{
-			if (EventSystemManager.currentSystem != null) // necessary when console is being destroyed as a result of app shutdown
-				EventSystemManager.currentSystem.SetSelectedGameObject(null, null);
+		public void DeactivateInputField() {
+			if(EventSystem.current != null) // necessary when console is being destroyed as a result of app shutdown
+				EventSystem.current.SetSelectedGameObject(null, null);
 		}
 	}
 }

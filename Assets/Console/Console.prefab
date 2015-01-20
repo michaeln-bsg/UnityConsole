@@ -506,13 +506,13 @@ MonoBehaviour:
   m_EndEdit:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Wenzil.Console.ConsoleInputField+SubmitEvent, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: BSGTools.Console.ConsoleInputField+SubmitEvent, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_OnValueChange:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Wenzil.Console.ConsoleInputField+OnChangeEvent, Assembly-CSharp, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+    m_TypeName: BSGTools.Console.ConsoleInputField+OnChangeEvent, Assembly-CSharp,
+      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   m_SelectionColor: {r: .65882355, g: .807843149, b: 1, a: .752941191}
   m_Text: testing
   m_CaretBlinkRate: 1.70000005

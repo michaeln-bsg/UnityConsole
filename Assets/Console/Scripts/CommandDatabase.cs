@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Wenzil.Console {
+namespace BSGTools.Console {
 	public delegate string CommandCallback(params string[] args);
 
 	/// <summary>

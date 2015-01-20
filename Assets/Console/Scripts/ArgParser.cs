@@ -1,6 +1,6 @@
 ﻿
 using System.Collections.Generic;
-namespace Wenzil.Console {
+namespace BSGTools.Console {
 	public static class ArgParser {
 
 		public static ParseResults Parse(ParseRules rules) {

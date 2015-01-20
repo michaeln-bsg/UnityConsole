@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace Wenzil.Console {
+namespace BSGTools.Console {
 	/// <summary>
 	/// A version of Unity's Input Field that doesnt
 	/// Deactivate itself automatically when pressing enter or return

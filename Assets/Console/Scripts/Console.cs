@@ -1,7 +1,7 @@
 ﻿
 public delegate void OnConsoleLog(string line);
 
-namespace Wenzil.Console {
+namespace BSGTools.Console {
 	/// <summary>
 	/// Use Console.Log() anywhere in your code. The Console prefab will display the output.
 	/// </summary>

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Wenzil.Console {
+namespace BSGTools.Console {
 
 	/// <summary>
 	/// The interactive front-end of the Console.

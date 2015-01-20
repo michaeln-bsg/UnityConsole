@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace Wenzil.Console {
+namespace BSGTools.Console {
 	/// <summary>
 	/// The behavior of the Console.
 	/// </summary>

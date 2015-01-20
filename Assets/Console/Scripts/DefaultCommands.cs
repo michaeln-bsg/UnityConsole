@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using Wenzil.Console;
+using BSGTools.Console;
 
-namespace Wenzil.Console {
+namespace BSGTools.Console {
 	public static class DefaultCommands {
 
 		public static void LoadIntoDatabase(ConsoleController cc, ConsoleUI ui) {

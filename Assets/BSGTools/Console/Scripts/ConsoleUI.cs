@@ -70,10 +70,10 @@ namespace BSGTools.Console {
 			if(onSubmitCommand != null)
 				onSubmitCommand(inputField.fieldHeader, inputField.userText);
 			scrollbar.value = 0;
-			ClearInput();
 
 			// have to delay, otherwise the enter key writes a newline into the freshly cleared input field
-			Invoke("ActivateInputField", 0.1f);
+			//Invoke("ActivateInputField", 0.2f);
+			ActivateInputField(true);
 		}
 
 		public void OnScroll(PointerEventData eventData) {
@@ -100,7 +100,7 @@ namespace BSGTools.Console {
 
 			ClearInput();
 			if(open)
-				Invoke("ActivateInputField", 0.1f); // have to delay, otherwise the toggle key is written into the input field
+				ActivateInputField(true); // have to delay, otherwise the toggle key is written into the input field
 			else
 				DeactivateInputField();
 
@@ -125,7 +125,9 @@ namespace BSGTools.Console {
 			inputField.MoveTextEnd(false);
 		}
 
-		public void ActivateInputField() {
+		public void ActivateInputField(bool clear) {
+			if(clear)
+				ClearInput();
 			EventSystem.current.SetSelectedGameObject(scrollbar.gameObject, null);
 			EventSystem.current.SetSelectedGameObject(inputField.gameObject, null);
 		}

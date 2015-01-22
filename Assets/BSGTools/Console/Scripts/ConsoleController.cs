@@ -10,10 +10,20 @@ namespace BSGTools.Console {
 	[RequireComponent(typeof(ConsoleUI))]
 	public class ConsoleController : MonoBehaviour {
 		public KeyCode toggleKey = KeyCode.BackQuote;
-		public bool closeOnEscape = false;
 		private List<string> cache = new List<string>();
 		private int cachePointer = 0;
-		public GameObject selected { get; set; }
+		public GameObject selectedObj { get; set; }
+		Component _selectedComponent;
+		public Component selectedComponent {
+			get {
+				if(selectedObj == null && _selectedComponent != null)
+					_selectedComponent = null;
+				return _selectedComponent;
+			}
+			set {
+				_selectedComponent = value;
+			}
+		}
 
 		ConsoleUI ui;
 
@@ -84,27 +94,18 @@ namespace BSGTools.Console {
 				DoRaycast();
 
 			if(Input.GetKeyDown(KeyCode.Escape))
-				selected = null;
+				selectedObj = null;
 			else if(Input.GetKeyDown(toggleKey))
 				ui.ToggleConsole();
-			else if(Input.GetKeyDown(KeyCode.Escape) && closeOnEscape)
-				ui.CloseConsole();
 			else if(Input.GetKeyDown(KeyCode.UpArrow))
 				SetFromCache(true);
 			else if(Input.GetKeyDown(KeyCode.DownArrow))
 				SetFromCache(false);
 
-			if(selected != null)
-				ui.selected.text = string.Format("{0} (IID:{1})", selected.name, selected.GetInstanceID());
+			if(selectedObj != null)
+				ui.selected.text = string.Format("{0} (IID:{1})", selectedObj.name, selectedObj.GetInstanceID());
 			else
 				ui.selected.text = "";
-
-			//Debug.Log("Test Log");
-			//Debug.LogError("Test Error");
-			//Debug.LogException(new UnityException("TEST LOG EXCEPTION"));
-			//Debug.LogWarning("Test Log Warning");
-			//throw new UnityException("TEST THROW EXCEPTION");
-			//Console.Log("a");
 		}
 
 		private void DoRaycast() {
@@ -112,20 +113,21 @@ namespace BSGTools.Console {
 			if(maincam.isOrthoGraphic) {
 				var hit = Physics2D.Raycast(maincam.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 				if(hit.collider != null) {
-					selected = hit.collider.gameObject;
-					ui.ActivateInputField();
+					selectedObj = hit.collider.gameObject;
+					ui.ActivateInputField(false);
 					return;
 				}
 			}
 
 			RaycastHit hitInfo;
 			if(Physics.Raycast(maincam.ScreenPointToRay(Input.mousePosition), out hitInfo)) {
-				selected = hitInfo.collider.gameObject;
-				ui.ActivateInputField();
+				selectedObj = hitInfo.collider.gameObject;
+				ui.ActivateInputField(false);
 			}
 		}
 
 		private void SetFromCache(bool upPressed) {
+			var a = new AnimationCurve();
 			if(cache.Count == 0)
 				return;
 			ui.SetInput(cache[cachePointer]);

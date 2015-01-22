@@ -497,10 +497,8 @@ namespace BSGTools.Console {
 				for(int i = 0;i < val.Length;++i) {
 					char c = val[i];
 
-					if(c == '\r' || (int)c == 3)
-						c = '\n';
-					//if(c == '\t' && OnTabEntered != null)
-					//	OnTabEntered();
+					if(c == '\r' || (int)c == 3 || c == '\n')
+						continue;
 
 					if(onValidateInput != null)
 						c = onValidateInput(m_Text, m_Text.Length, c);

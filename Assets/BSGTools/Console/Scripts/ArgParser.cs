@@ -8,17 +8,24 @@ namespace BSGTools.Console {
 			for(int i = 0;i < rules.argString.Length;i++) {
 				var c = rules.argString[i];
 
-				if(rules.flagChar.HasValue && c == rules.flagChar.Value) {
+				if(c == rules.flagChar) {
 					var nextWhiteSpace = rules.argString.IndexOf(' ', i);
 					if(nextWhiteSpace == -1)
 						nextWhiteSpace = rules.argString.Length;
-					var flagName = rules.argString.Substring(i, nextWhiteSpace - i).Trim();
-					var nextFlag = rules.argString.IndexOf(rules.flagChar.Value, nextWhiteSpace);
+					var flagName = rules.argString.Substring(i, nextWhiteSpace - i).Trim().Replace("/", "");
+					var nextFlag = rules.argString.IndexOf(rules.flagChar, nextWhiteSpace);
 					if(nextFlag == -1)
 						nextFlag = rules.argString.Length;
 					var arg = rules.argString.Substring(nextWhiteSpace, nextFlag - nextWhiteSpace).Trim();
+					if(arg.Length > 0) {
+						if(arg[0] == '"')
+							arg = arg.Remove(0, 1);
+						if(arg[arg.Length - 1] == '"')
+							arg = arg.Remove(arg.Length - 1);
+					}
+					else
+						arg = null;
 					results.flagsArgs.Add(flagName, arg);
-
 				}
 			}
 			return results;
@@ -28,19 +35,15 @@ namespace BSGTools.Console {
 
 	public struct ParseRules {
 		public string argString;
-		public char? flagChar;
-		public bool requireQuotesForArgs;
+		public char flagChar;
 
-		public ParseRules(string argString, bool requireQuotesForArgs) {
-			this.argString = argString;
-			this.flagChar = null;
-			this.requireQuotesForArgs = requireQuotesForArgs;
-		}
+		public ParseRules(string argString) : this(argString, '/') { }
+		public ParseRules(string[] argparts) : this(string.Join(" ", argparts)) { }
+		public ParseRules(string[] argparts, char flagChar) : this(string.Join(" ", argparts), flagChar) { }
 
-		public ParseRules(string argString, bool requireQuotesForArgs, char? flagChar) {
+		public ParseRules(string argString, char flagChar) {
 			this.argString = argString;
 			this.flagChar = flagChar;
-			this.requireQuotesForArgs = requireQuotesForArgs;
 		}
 	}
 

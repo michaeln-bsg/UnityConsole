@@ -2,21 +2,24 @@
 using System.Collections.Generic;
 namespace BSGTools.Console {
 	public static class ArgParser {
+		public static string flagChars = "/-";
 
-		public static ParseResults Parse(ParseRules rules) {
-			var results = new ParseResults();
-			for(int i = 0;i < rules.argString.Length;i++) {
-				var c = rules.argString[i];
+		public static Dictionary<string, string> Parse(string argStr) {
+			var results = new Dictionary<string, string>();
+			for(int i = 0;i < argStr.Length;i++) {
+				var c = argStr[i];
 
-				if(c == rules.flagChar) {
-					var nextWhiteSpace = rules.argString.IndexOf(' ', i);
+				if(IsFlagChar(c)) {
+					var nextWhiteSpace = argStr.IndexOf(' ', i);
 					if(nextWhiteSpace == -1)
-						nextWhiteSpace = rules.argString.Length;
-					var flagName = rules.argString.Substring(i, nextWhiteSpace - i).Trim().Replace("/", "");
-					var nextFlag = rules.argString.IndexOf(rules.flagChar, nextWhiteSpace);
+						nextWhiteSpace = argStr.Length;
+					var flagName = argStr.Substring(i, nextWhiteSpace - i).Trim();
+					foreach(var fc in flagChars)
+						flagName = flagName.Replace(fc.ToString(), "");
+					var nextFlag = argStr.IndexOf(flagChars, nextWhiteSpace);
 					if(nextFlag == -1)
-						nextFlag = rules.argString.Length;
-					var arg = rules.argString.Substring(nextWhiteSpace, nextFlag - nextWhiteSpace).Trim();
+						nextFlag = argStr.Length;
+					var arg = argStr.Substring(nextWhiteSpace, nextFlag - nextWhiteSpace).Trim();
 					if(arg.Length > 0) {
 						if(arg[0] == '"')
 							arg = arg.Remove(0, 1);
@@ -25,33 +28,15 @@ namespace BSGTools.Console {
 					}
 					else
 						arg = null;
-					results.flagsArgs.Add(flagName, arg);
+					results.Add(flagName, arg);
 				}
 			}
 			return results;
 		}
 
-	}
-
-	public struct ParseRules {
-		public string argString;
-		public char flagChar;
-
-		public ParseRules(string argString) : this(argString, '/') { }
-		public ParseRules(string[] argparts) : this(string.Join(" ", argparts)) { }
-		public ParseRules(string[] argparts, char flagChar) : this(string.Join(" ", argparts), flagChar) { }
-
-		public ParseRules(string argString, char flagChar) {
-			this.argString = argString;
-			this.flagChar = flagChar;
+		public static bool IsFlagChar(char c) {
+			return flagChars.IndexOf('c') != -1;
 		}
-	}
 
-	public class ParseResults {
-		public Dictionary<string, string> flagsArgs;
-
-		public ParseResults() {
-			flagsArgs = new Dictionary<string, string>();
-		}
 	}
 }

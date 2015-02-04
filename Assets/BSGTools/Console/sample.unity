@@ -1346,10 +1346,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scrollbar: {fileID: 1133180919}
-  outputText: {fileID: 81622681}
-  selected: {fileID: 1411403612}
-  inputField: {fileID: 352495247}
-  togglableContent: {fileID: 2075296356}
+  output: {fileID: 0}
+  selectedObjLabel: {fileID: 0}
+  input: {fileID: 0}
+  group: {fileID: 0}
   onAlpha: .75
 --- !u!225 &2075296356
 CanvasGroup:

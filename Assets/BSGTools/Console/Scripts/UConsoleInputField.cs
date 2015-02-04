@@ -14,7 +14,7 @@ namespace BSGTools.Console {
 	/// Deactivate itself automatically when pressing enter or return
 	/// </summary>
 	[AddComponentMenu("UI/Fixed Input Field")]
-	public class ConsoleInputField
+	public class UConsoleInputField
 		: Selectable,
 		IUpdateSelectedHandler,
 		IBeginDragHandler,
@@ -197,7 +197,7 @@ namespace BSGTools.Console {
 		// Doesn't include dot and @ on purpose! See usage for details.
 		const string kEmailSpecialCharacters = "!#$%&'*+-/=?^_`{|}~";
 
-		protected ConsoleInputField() { }
+		protected UConsoleInputField() { }
 
 
 		protected TextGenerator cachedInputTextGenerator {

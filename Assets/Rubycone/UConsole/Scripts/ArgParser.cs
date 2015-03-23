@@ -1,6 +1,6 @@
 ﻿
 using System.Collections.Generic;
-namespace BSGTools.Console {
+namespace Rubycone.UConsole {
 	public static class ArgParser {
 		public static string flagChars = "/-";
 

@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace BSGTools.Console {
+namespace Rubycone.UConsole {
 	/// <summary>
 	/// A version of Unity's Input Field that doesnt
 	/// Deactivate itself automatically when pressing enter or return

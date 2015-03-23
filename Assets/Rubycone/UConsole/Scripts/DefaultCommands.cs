@@ -2,29 +2,36 @@
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using BSGTools.Console;
+using Rubycone.UConsole;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace BSGTools.Console {
-	[RequireComponent(typeof(UConsoleController))]
-	public class DefaultCommands : MonoBehaviour {
-		private static readonly string NO_OBJ_SELECTED_ERR = UConsole.ColorizeErr("NO SELECTED OBJECT");
+namespace Rubycone.UConsole {
 
-		void Start() {
-			var cc = GetComponent<UConsoleController>();
-			MetaCommands(cc);
-			UnityCommands(cc);
-			RBActions(cc);
+    public static class DefaultCommands {
+
+        static object @lock = new object();
+        static bool loaded;
+
+        public static void Load() {
+            if(loaded)
+                return;
+
+            lock(@lock) {
+                MetaCommands();
+                UnityCommands();
+                RBActions();
 
 #if UNITY_EDITOR
-			RegisterEditorCommands(cc);
+                RegisterEditorCommands();
 #endif
+                loaded = true;
+            }
 		}
 
-		void UnityCommands(UConsoleController cc) {
+        static void UnityCommands() {
 			new CCMD("quit", "exit", "qqq")
 				.SetCallback((sb, t) => {
 #if UNITY_EDITOR
@@ -39,7 +46,7 @@ namespace BSGTools.Console {
 
 			new CCMD("destroy")
 				.SetCallback((sb, t) => {
-					GameObject.Destroy(cc.selectedObj);
+                    GameObject.Destroy(UConsole.selectedObj);
 					return sb.Append("Object destroyed.");
 				})
 				.SetRequireSelectedGameObj()
@@ -47,18 +54,15 @@ namespace BSGTools.Console {
 
 			new CCMD("toggle")
 				.SetCallback((sb, t) => {
-					cc.selectedObj.SetActive(!cc.selectedObj.activeSelf);
-					return sb.Append("Object active == " + cc.selectedObj.activeSelf);
+                    UConsole.selectedObj.SetActive(!UConsole.selectedObj.activeSelf);
+                    return sb.Append("Object active == " + UConsole.selectedObj.activeSelf);
 				})
 				.SetDescription("Toggles the selected GameObject")
 				.SetRequireSelectedGameObj();
 
 			new CCMD("listc")
 				.SetCallback((sb, t) => {
-					if(cc.selectedObj == null)
-						return sb.Append(NO_OBJ_SELECTED_ERR);
-
-					var components = cc.selectedObj.GetComponents<Component>();
+                    var components = UConsole.selectedObj.GetComponents<Component>();
 					for(int i = 0;i < components.Length;i++) {
 						var c = components[i];
 						sb.AppendLine(string.Format("{0}) {1}", i + 1, c.GetType().Name));
@@ -69,18 +73,14 @@ namespace BSGTools.Console {
 				.SetDescription("Lists all components on the selected GameObject");
 
 			new CCMD("addc", "addcomponent")
-				.SetCommandType(CommandType.MultiArgsRequired)
+                .SetCommandType(CommandType.MultiArgs)
+                .AddRequiredFlags("n")
 				.SetCallback((sb, t) => {
-					if(cc.selectedObj == null)
-						return sb.Append(NO_OBJ_SELECTED_ERR);
-					var name = string.Empty;
-					if(t.multiArgs.TryGetValue("n", out name) == false)
-						sb.Append(UConsole.ColorizeErr("COMPONENT NAME REQUIRED"));
+                    var name = t.multiArgs["n"];
 					var select = t.multiArgs.ContainsKey("s");
-
-					var component = cc.selectedObj.AddComponent(name);
+                    var component = UnityEngineInternal.APIUpdaterRuntimeServices.AddComponent(UConsole.selectedObj, "Assets/BSGTools/UConsole/Scripts/DefaultCommands.cs (81,37)", name);
 					if(select)
-						cc.selectedComponent = component;
+                        UConsole.selectedComponent = component;
 					return sb.Append("Component creation success.");
 				})
 				.SetRequireSelectedGameObj()
@@ -93,9 +93,7 @@ namespace BSGTools.Console {
 				.SetCommandType(CommandType.SingleArgRequired)
 				.SetRequireSelectedGameObj()
 				.SetCallback((sb, t) => {
-					if(cc.selectedObj == null)
-						return sb.Append(NO_OBJ_SELECTED_ERR);
-					cc.selectedObj.SendMessage(t.singleArg, SendMessageOptions.DontRequireReceiver);
+                    UConsole.selectedObj.SendMessage(t.singleArg, SendMessageOptions.DontRequireReceiver);
 					return sb.Append("Message sent");
 				});
 
@@ -105,7 +103,7 @@ namespace BSGTools.Console {
 				.SetCommandType(CommandType.SingleArgRequired)
 				.SetRequireSelectedGameObj()
 				.SetCallback((sb, t) => {
-					cc.selectedObj.SendMessageUpwards(t.singleArg, SendMessageOptions.DontRequireReceiver);
+                    UConsole.selectedObj.SendMessageUpwards(t.singleArg, SendMessageOptions.DontRequireReceiver);
 					return sb.Append("Message sent");
 				});
 
@@ -115,7 +113,7 @@ namespace BSGTools.Console {
 				.SetCommandType(CommandType.SingleArgRequired)
 				.SetRequireSelectedGameObj()
 				.SetCallback((sb, t) => {
-					cc.selectedObj.BroadcastMessage(t.singleArg, SendMessageOptions.DontRequireReceiver);
+                    UConsole.selectedObj.BroadcastMessage(t.singleArg, SendMessageOptions.DontRequireReceiver);
 					return sb.Append("Message sent");
 				});
 
@@ -125,8 +123,8 @@ namespace BSGTools.Console {
 				.SetUsage("selectc (typestr)")
 				.SetRequireSelectedGameObj()
 				.SetCallback((sb, t) => {
-					var component = cc.selectedObj.GetComponent(t.singleArg);
-					cc.selectedComponent = (component == null) ? cc.selectedComponent : component;
+                    var component = UConsole.selectedObj.GetComponent(t.singleArg);
+                    UConsole.selectedComponent = (component == null) ? UConsole.selectedComponent : component;
 					return sb.Append((component == null) ? UConsole.ColorizeErr("NO COMPONENT FOUND.") : "Selected component (IID:" + component.GetInstanceID() + ")");
 				});
 
@@ -134,19 +132,11 @@ namespace BSGTools.Console {
 				.SetDescription("Returns the selected component on the selected object.")
 				.SetRequireSelectedGameObj()
 				.SetCallback((sb, t) => {
-					return sb.Append((cc.selectedComponent == null) ? UConsole.ColorizeWarn("NO COMPONENT SELECTED.") : "Selected component (IID:" + cc.selectedComponent.GetInstanceID() + ")");
+                    return sb.Append((UConsole.selectedComponent == null) ? UConsole.ColorizeWarn("NO COMPONENT SELECTED.") : "Selected component (IID:" + UConsole.selectedComponent.GetInstanceID() + ")");
 				});
 		}
 
-		void MetaCommands(UConsoleController cc) {
-			new CCMD("cls", "clear")
-				.SetCallback((sb, t) => {
-					cc.ClearOutput();
-					return null;
-				})
-				.SetDescription("Clears the screen")
-				.SetUsage("noargs");
-
+        static void MetaCommands() {
 			new CCMD("help", "?")
 				.SetCommandType(CommandType.SingleArgOptional)
 				.SetCallback((sb, t) => {
@@ -181,7 +171,7 @@ namespace BSGTools.Console {
 			new CCMD("physball")
 				.SetDescription("Spawns a physics sphere in front of the given or active camera.")
 				.SetUsage("physball [/c cameraname] [/u units_ahead def:5]")
-				.SetCommandType(CommandType.MultiArgsOptional)
+                .SetCommandType(CommandType.MultiArgs)
 				.SetCallback((sb, t) => {
 					var camSpecified = t.multiArgs.ContainsKey("c");
 					var unitsahead = (t.multiArgs.ContainsKey("u")) ? float.Parse(t.multiArgs["u"]) : 5f;
@@ -208,12 +198,12 @@ namespace BSGTools.Console {
 
 
 #if UNITY_EDITOR
-		private static void RegisterEditorCommands(UConsoleController cc) {
+        static void RegisterEditorCommands() {
 			new CCMD("ue.view")
 				.SetDescription("EDITOR ONLY: Brings the selected object into view in the scene view.")
 				.SetRequireSelectedGameObj()
 				.SetCallback((sb, t) => {
-					Selection.activeGameObject = cc.selectedObj;
+                    Selection.activeGameObject = UConsole.selectedObj;
 					var scene = GetSceneView();
 					scene.Show(true);
 					scene.Focus();
@@ -225,12 +215,12 @@ namespace BSGTools.Console {
 			.SetDescription("EDITOR ONLY: Sets the selected object as the Editor selected object.")
 			.SetRequireSelectedGameObj()
 			.SetCallback((sb, t) => {
-				Selection.activeGameObject = cc.selectedObj;
+                Selection.activeGameObject = UConsole.selectedObj;
 				return sb.Append("Selected in Editor...");
 			});
 		}
 
-		private static SceneView GetSceneView() {
+        static SceneView GetSceneView() {
 			var scene = SceneView.currentDrawingSceneView;
 			if(scene == null)
 				scene = SceneView.lastActiveSceneView;
@@ -241,12 +231,12 @@ namespace BSGTools.Console {
 			return scene;
 		}
 #endif
-		private static void RBActions(UConsoleController cc) {
+        static void RBActions() {
 			new CCMD("rb.wakeup")
 				.SetDescription("Wakes up the selected object's rigidbody, if it exists.")
 				.SetRequireSelectedGameObj()
 				.SetCallback((sb, t) => {
-					var rb = cc.selectedObj.GetComponent<Rigidbody>();
+                    var rb = UConsole.selectedObj.GetComponent<Rigidbody>();
 					if(rb == null)
 						return sb.Append(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
 
@@ -258,7 +248,7 @@ namespace BSGTools.Console {
 				.SetDescription("Makes the selected object's rigidbody kinematic, if it exists.")
 				.SetRequireSelectedGameObj()
 				.SetCallback((sb, t) => {
-					var rb = cc.selectedObj.GetComponent<Rigidbody>();
+                    var rb = UConsole.selectedObj.GetComponent<Rigidbody>();
 					if(rb == null)
 						return sb.Append(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
 
@@ -270,7 +260,7 @@ namespace BSGTools.Console {
 				.SetDescription("Makes the selected object's rigidbody NOT kinematic, if it exists.")
 				.SetRequireSelectedGameObj()
 				.SetCallback((sb, t) => {
-					var rb = cc.selectedObj.GetComponent<Rigidbody>();
+                    var rb = UConsole.selectedObj.GetComponent<Rigidbody>();
 					if(rb == null)
 						return sb.Append(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
 
@@ -282,7 +272,7 @@ namespace BSGTools.Console {
 				.SetDescription("Toggles the kinematic state for the selected object's rigidbody, if it exists.")
 				.SetRequireSelectedGameObj()
 				.SetCallback((sb, t) => {
-					var rb = cc.selectedObj.GetComponent<Rigidbody>();
+                    var rb = UConsole.selectedObj.GetComponent<Rigidbody>();
 					if(rb == null)
 						return sb.Append(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
 

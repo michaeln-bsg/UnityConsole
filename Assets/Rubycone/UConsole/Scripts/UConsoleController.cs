@@ -35,6 +35,12 @@ namespace Rubycone.UConsole {
         private UConsoleModule[] modules;
         private int cachePointer = 0;
 
+        public bool inputHasFocus {
+            get {
+                return EventSystem.current.currentSelectedGameObject == input.gameObject;
+            }
+        }
+
         byte _hookMode = 0;
         public byte hookMode {
             get { return _hookMode; }
@@ -110,7 +116,7 @@ namespace Rubycone.UConsole {
                 ActivateInputField(true);
             }
             else {
-                DeactivateInputField();
+                DeselectInputField();
             }
 
             if(!open) {
@@ -150,7 +156,7 @@ namespace Rubycone.UConsole {
             EventSystem.current.SetSelectedGameObject(input.gameObject, null);
         }
 
-        public void DeactivateInputField() {
+        public void DeselectInputField() {
             // necessary when console is being destroyed as a result of app shutdown
             if(EventSystem.current != null) {
                 EventSystem.current.SetSelectedGameObject(null, null);
@@ -230,13 +236,7 @@ namespace Rubycone.UConsole {
             hookMode = UConsoleDB.GetCVar("hookmode").GetByte();
 
             //Begin console-open-only checks
-            if(Input.GetKeyDown(KeyCode.Escape)) {
-                UConsole.selectedObj = null;
-            }
-            else if(Input.GetMouseButton(0)) {
-                DoRaycast();
-            }
-            else if(Input.GetKeyDown(KeyCode.UpArrow)) {
+            if(Input.GetKeyDown(KeyCode.UpArrow)) {
                 SetFromCache(true);
             }
             else if(Input.GetKeyDown(KeyCode.DownArrow)) {
@@ -275,26 +275,6 @@ namespace Rubycone.UConsole {
             //EventSystem.current.currentSelectedGameObject != outputText.gameObject)
         }
 
-        private void DoRaycast() {
-            var maincam = Camera.main;
-            if(maincam == null)
-                return;
-            if(maincam.orthographic) {
-                var hit = Physics2D.Raycast(maincam.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-                if(hit.collider != null) {
-                    UConsole.selectedObj = hit.collider.gameObject;
-                    ActivateInputField(false);
-                    return;
-                }
-            }
-
-            RaycastHit hitInfo;
-            if(Physics.Raycast(maincam.ScreenPointToRay(Input.mousePosition), out hitInfo)) {
-                UConsole.selectedObj = hitInfo.collider.gameObject;
-                ActivateInputField(false);
-            }
-        }
-
         private void SetFromCache(bool upPressed) {
             if(cache.Count == 0)
                 return;
@@ -319,7 +299,7 @@ namespace Rubycone.UConsole {
 
         internal void RegisterModules() {
             if(modulesObj != null) {
-                modules = modulesObj.GetComponents<UConsoleModule>();
+                modules = modulesObj.GetComponents<UConsoleModule>().Where(m => m.isActiveAndEnabled).ToArray();
                 foreach(var m in modules) {
                     m.RegisterModule(this);
                 }
@@ -331,5 +311,12 @@ namespace Rubycone.UConsole {
             onSubmitCommand = null;
         }
 
+        internal void AllowPassthrough(bool passthrough) {
+            group.blocksRaycasts = !passthrough;
+            group.alpha = passthrough ? 0.25f : onAlpha;
+            if(passthrough) {
+                DeselectInputField();
+            }
+        }
     }
 }

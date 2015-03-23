@@ -19,8 +19,10 @@ namespace Rubycone.UConsole.Modules {
         protected virtual void OnModuleUpdate() { }
         protected virtual void OnModuleRegistered() { }
 
+        bool shuttingDown = false;
+
         public void ActivateModule() {
-            if(state == ModuleState.Deactivated) {
+            if(state == ModuleState.Deactivated && isActiveAndEnabled) {
                 OnModuleActivate();
                 state = ModuleState.Activated;
             }
@@ -33,8 +35,18 @@ namespace Rubycone.UConsole.Modules {
             }
         }
 
+        void OnDisable() {
+            if(!shuttingDown) {
+                DeactivateModule();
+            }
+        }
+
+        void OnApplicationQuit() {
+            shuttingDown = true;
+        }
+
         void Update() {
-            if(state == ModuleState.Activated) {
+            if(state == ModuleState.Activated && isActiveAndEnabled) {
                 state = ModuleState.Updating;
                 OnModuleUpdate();
                 state = ModuleState.Activated;
@@ -44,7 +56,7 @@ namespace Rubycone.UConsole.Modules {
         public void RegisterModule(UConsoleController controller) {
             this.controller = controller;
             OnModuleRegistered();
-            state = ModuleState.Activated;
+            state = ModuleState.Deactivated;
         }
     }
 }

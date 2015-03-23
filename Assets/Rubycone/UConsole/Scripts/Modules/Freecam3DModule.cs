@@ -42,15 +42,22 @@ namespace Rubycone.UConsole.Modules {
 
         //Control camera
         protected override void OnModuleUpdate() {
-            ApplyDirectPositionalInput();
-            CheckRotationalInput();
-            freecamObj.transform.localRotation
-                = Quaternion.Lerp(freecamObj.transform.localRotation, targetRotation, rotateSmoothing * Time.unscaledDeltaTime);
+            if(!controller.inputHasFocus) {
+                ApplyDirectPositionalInput();
+                CheckRotationalInput();
+                freecamObj.transform.localRotation
+                    = Quaternion.Lerp(freecamObj.transform.localRotation, targetRotation, rotateSmoothing * Time.unscaledDeltaTime);
+            }
         }
 
         private void CheckRotationalInput() {
-            var mx = Input.GetAxis("Mouse X");
-            var my = Input.GetAxis("Mouse Y");
+            var mx = 0f;
+            var my = 0f;
+
+            if(Input.GetMouseButton(1)) {
+                mx = Input.GetAxis("Mouse X");
+                my = Input.GetAxis("Mouse Y");
+            }
 
             if(keypadLook) {
                 var kpl = 10f;

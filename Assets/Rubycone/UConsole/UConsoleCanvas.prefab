@@ -2,17 +2,17 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &106922
 GameObject:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 4
   m_Component:
   - 224: {fileID: 22401978}
   - 114: {fileID: 11471276}
-  - 114: {fileID: 11488462}
-  - 114: {fileID: 11499554}
   - 114: {fileID: 11458062}
+  - 114: {fileID: 11488462}
   - 114: {fileID: 11407674}
+  - 114: {fileID: 11499554}
   m_Layer: 5
   m_Name: Modules
   m_TagString: Untagged
@@ -218,7 +218,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 106922}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 23ebab0c05f98b04daa77b85af3857a0, type: 3}
   m_Name: 
@@ -667,10 +667,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2d2ec52b5baa4e43b343bcd4105b5fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetPosition: {x: 0, y: 0, z: 0}
-  targetRotation: {x: 0, y: 0, z: 0, w: 0}
   moveSpeed: .100000001
-  rotateSmoothing: 5
   keypadLook: 1
 --- !u!114 &11499554
 MonoBehaviour:
@@ -678,7 +675,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 106922}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 03b1313701a9fc84ea191b29e2e2cd51, type: 3}
   m_Name: 
@@ -763,8 +760,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 22456878}
-  m_RootOrder: 4
+  m_Father: {fileID: 22456876}
+  m_RootOrder: 1
   m_AnchorMin: {x: .5, y: .5}
   m_AnchorMax: {x: .5, y: .5}
   m_AnchoredPosition: {x: 0, y: 0}
@@ -781,6 +778,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 22456878}
+  - {fileID: 22401978}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_AnchorMin: {x: 0, y: 0}
@@ -802,7 +800,6 @@ RectTransform:
   - {fileID: 22456882}
   - {fileID: 22456884}
   - {fileID: 22456886}
-  - {fileID: 22401978}
   m_Father: {fileID: 22456876}
   m_RootOrder: 0
   m_AnchorMin: {x: 0, y: 0}

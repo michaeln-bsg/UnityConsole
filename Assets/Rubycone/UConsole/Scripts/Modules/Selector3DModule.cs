@@ -6,20 +6,31 @@ namespace Rubycone.UConsole.Modules {
 
         Camera eventCamera;
 
-        protected override void OnModuleActivate() {
-            throw new System.NotImplementedException();
-        }
+        protected override void OnModuleActivate() { }
 
         protected override void OnModuleUpdate() {
-            RaycastHit hitInfo;
-            if(Physics.Raycast(eventCamera.ScreenPointToRay(Input.mousePosition), out hitInfo)) {
-                UConsole.selectedObj = hitInfo.collider.gameObject;
-                controller.ActivateInputField(false);
+            CheckForPassthrough();
+            CheckForSelection();
+        }
+
+        private void CheckForSelection() {
+            if(Input.GetMouseButtonDown(1)) {
+                RaycastHit hitInfo;
+                if(Physics.Raycast(eventCamera.ScreenPointToRay(Input.mousePosition), out hitInfo)) {
+                    UConsole.selectedObj = hitInfo.collider.gameObject;
+                    controller.ActivateInputField(false);
+                }
+            }
+            else if(Input.GetKeyDown(KeyCode.Escape)) {
+                UConsole.selectedObj = null;
             }
         }
 
+        private void CheckForPassthrough() {
+            controller.AllowPassthrough(Input.GetKey(KeyCode.LeftControl));
+        }
+
         protected override void OnModuleDeactivate() {
-            throw new System.NotImplementedException();
         }
     }
 }

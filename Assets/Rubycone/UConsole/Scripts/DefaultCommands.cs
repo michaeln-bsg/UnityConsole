@@ -29,256 +29,297 @@ namespace Rubycone.UConsole {
 #endif
                 loaded = true;
             }
-		}
+        }
 
         static void UnityCommands() {
-			new CCMD("quit", "exit", "qqq")
-				.SetCallback((sb, t) => {
+            new CCommand("exit", "Quits the application.")
+                .CommandExecuted += (args) => {
 #if UNITY_EDITOR
-					UnityEditor.EditorApplication.isPlaying = false;
+                    UnityEditor.EditorApplication.isPlaying = false;
 #else
-					Application.Quit();
+				    Application.Quit();
 #endif
-					return sb.Append("!!! QUITTING APPLICATION !!!");
-				})
-				.SetDescription("Quits the game")
-				.SetUsage("noargs");
+                    UConsole.LogWarn("!!! QUITTING APPLICATION !!!");
+                    return true;
+                };
 
-			new CCMD("destroy")
-				.SetCallback((sb, t) => {
+            new CCommand("destroy", "Destroys the selected GameObject.", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
                     GameObject.Destroy(UConsole.selectedObj);
-					return sb.Append("Object destroyed.");
-				})
-				.SetRequireSelectedGameObj()
-				.SetDescription("Destroys the selected GameObject");
+                    UConsole.Log("Object destroyed.");
+                    return true;
+                };
 
-			new CCMD("toggle")
-				.SetCallback((sb, t) => {
-                    UConsole.selectedObj.SetActive(!UConsole.selectedObj.activeSelf);
-                    return sb.Append("Object active == " + UConsole.selectedObj.activeSelf);
-				})
-				.SetDescription("Toggles the selected GameObject")
-				.SetRequireSelectedGameObj();
+            new CCommand("destroyc", "Destroys the selected Component.", CCommandFlags.RequireSelectedComponent)
+                .CommandExecuted += (args) => {
+                    Component.Destroy(UConsole.selectedComponent);
+                    UConsole.Log("Component destroyed.");
+                    return true;
+                };
 
-			new CCMD("listc")
-				.SetCallback((sb, t) => {
+            new CCommand("toggle", "Toggles the selected GameObject.", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
+                    UConsole.selectedObj.SetActive(UConsole.selectedObj.activeSelf);
+                    UConsole.Log("GameObject active == " + UConsole.selectedObj.activeSelf + ".");
+                    return true;
+                };
+
+            new CCommand("listc", "Lists all components on the selected GameObject", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
                     var components = UConsole.selectedObj.GetComponents<Component>();
-					for(int i = 0;i < components.Length;i++) {
-						var c = components[i];
-						sb.AppendLine(string.Format("{0}) {1}", i + 1, c.GetType().Name));
-					}
-					return sb;
-				})
-				.SetRequireSelectedGameObj()
-				.SetDescription("Lists all components on the selected GameObject");
+                    for(int i = 0; i < components.Length; i++) {
+                        var c = components[i];
+                        UConsole.Log(string.Format("{0}) {1}", i + 1, c.GetType().Name));
+                    }
+                    return true;
+                };
 
-			new CCMD("addc", "addcomponent")
-                .SetCommandType(CommandType.MultiArgs)
-                .AddRequiredFlags("n")
-				.SetCallback((sb, t) => {
-                    var name = t.multiArgs["n"];
-					var select = t.multiArgs.ContainsKey("s");
-                    var component = UnityEngineInternal.APIUpdaterRuntimeServices.AddComponent(UConsole.selectedObj, "Assets/BSGTools/UConsole/Scripts/DefaultCommands.cs (81,37)", name);
-					if(select)
-                        UConsole.selectedComponent = component;
-					return sb.Append("Component creation success.");
-				})
-				.SetRequireSelectedGameObj()
-				.SetDescription("Adds the component type to the selected object.")
-				.SetUsage("addc (/n Component Type Name) [/s select after creation]");
+            new CCommand("sendmsg", "Sends a message using Unity's standard message system.", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
+                    UConsole.selectedObj.SendMessage(args[0], SendMessageOptions.DontRequireReceiver);
+                    UConsole.Log("Message sent");
+                    return true;
+                };
+            new CCommand("sendmsgr", "Sends a message using Unity's standard message system (requires receiver).", CCommandFlags.RequireSelectedObj).CommandExecuted += (args) => {
+                UConsole.selectedObj.SendMessage(args[0], SendMessageOptions.RequireReceiver);
+                UConsole.Log("Message sent");
+                return true;
+            };
 
-			new CCMD("sendmsg")
-				.SetDescription("Sends a message using Unity's standard message system.")
-				.SetUsage("sendmsg (message)")
-				.SetCommandType(CommandType.SingleArgRequired)
-				.SetRequireSelectedGameObj()
-				.SetCallback((sb, t) => {
-                    UConsole.selectedObj.SendMessage(t.singleArg, SendMessageOptions.DontRequireReceiver);
-					return sb.Append("Message sent");
-				});
+            new CCommand("sendmsgup", "Sends a message upwards using Unity's standard message system.", CCommandFlags.RequireSelectedObj).CommandExecuted += (args) => {
+                UConsole.selectedObj.SendMessageUpwards(args[0], SendMessageOptions.DontRequireReceiver);
+                UConsole.Log("Message sent");
+                return true;
+            };
 
-			new CCMD("sendmsgup")
-				.SetDescription("Sends a message upwards using Unity's standard message system.")
-				.SetUsage("sendmsgup (message)")
-				.SetCommandType(CommandType.SingleArgRequired)
-				.SetRequireSelectedGameObj()
-				.SetCallback((sb, t) => {
-                    UConsole.selectedObj.SendMessageUpwards(t.singleArg, SendMessageOptions.DontRequireReceiver);
-					return sb.Append("Message sent");
-				});
+            new CCommand("sendmsgrup", "Sends a message upwards using Unity's standard message system (requires receiver).", CCommandFlags.RequireSelectedObj).CommandExecuted += (args) => {
+                UConsole.selectedObj.SendMessageUpwards(args[0], SendMessageOptions.RequireReceiver);
+                UConsole.Log("Message sent");
+                return true;
+            };
 
-			new CCMD("bmsg")
-				.SetDescription("Broadcasts a message using Unity's standard message system.")
-				.SetUsage("bmsg (message)")
-				.SetCommandType(CommandType.SingleArgRequired)
-				.SetRequireSelectedGameObj()
-				.SetCallback((sb, t) => {
-                    UConsole.selectedObj.BroadcastMessage(t.singleArg, SendMessageOptions.DontRequireReceiver);
-					return sb.Append("Message sent");
-				});
+            new CCommand("bmsg", "Broadcasts a message using Unity's standard message system.", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
+                    UConsole.selectedObj.BroadcastMessage(args[0], SendMessageOptions.DontRequireReceiver);
+                    UConsole.Log("Message sent");
+                    return true;
+                };
 
-			new CCMD("selectc")
-				.SetDescription("Selects a component on the selected object.")
-					.SetCommandType(CommandType.SingleArgRequired)
-				.SetUsage("selectc (typestr)")
-				.SetRequireSelectedGameObj()
-				.SetCallback((sb, t) => {
-                    var component = UConsole.selectedObj.GetComponent(t.singleArg);
+            new CCommand("bmsgr", "Broadcasts a message using Unity's standard message system (requires receiver).", CCommandFlags.RequireSelectedObj).CommandExecuted += (args) => {
+                UConsole.selectedObj.BroadcastMessage(args[0], SendMessageOptions.RequireReceiver);
+                UConsole.Log("Message sent");
+                return true;
+            };
+
+            new CCommand("selectc", "Selects a component on the selected object.", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
+                    var component = UConsole.selectedObj.GetComponent(args[0]);
                     UConsole.selectedComponent = (component == null) ? UConsole.selectedComponent : component;
-					return sb.Append((component == null) ? UConsole.ColorizeErr("NO COMPONENT FOUND.") : "Selected component (IID:" + component.GetInstanceID() + ")");
-				});
 
-			new CCMD("selectedc")
-				.SetDescription("Returns the selected component on the selected object.")
-				.SetRequireSelectedGameObj()
-				.SetCallback((sb, t) => {
-                    return sb.Append((UConsole.selectedComponent == null) ? UConsole.ColorizeWarn("NO COMPONENT SELECTED.") : "Selected component (IID:" + UConsole.selectedComponent.GetInstanceID() + ")");
-				});
-		}
+                    if(component == null) {
+                        UConsole.LogErr("NO COMPONENT FOUND.");
+                    }
+                    else {
+                        UConsole.Log("Selected component (IID:" + component.GetInstanceID() + ")");
+                    }
+                    return component != null;
+                };
+
+            new CCommand("selectedc", "Returns the selected component on the selected object.", CCommandFlags.RequireSelectedComponent).CommandExecuted += (args) => {
+                UConsole.Log("Selected component (IID:" + UConsole.selectedComponent.GetInstanceID() + ")");
+                return true;
+            };
+        }
 
         static void MetaCommands() {
-			new CCMD("help", "?")
-				.SetCommandType(CommandType.SingleArgOptional)
-				.SetCallback((sb, t) => {
-					if(t != null) {
-						var command = UConsoleDB.GetCommand(t.singleArg);
-						sb.AppendLine(string.Join(", ", command.aliases).Trim());
-						sb.AppendLine("\t" + command.description);
-						sb.AppendLine("\t\tusage: " + command.usage);
-					}
-					else {
-						var color = false;
-						foreach(var c in UConsoleDB.ccmds) {
-							var innerSB = new StringBuilder();
-							innerSB.AppendLine(string.Join(", ", c.aliases).Trim());
-							innerSB.AppendLine("\t" + c.description);
-							innerSB.AppendLine("\tusage: " + c.usage);
-							if(color)
-								sb.Append(UConsole.Colorize(innerSB.ToString(), Color.cyan));
-							else
-								sb.Append(innerSB.ToString());
-							color = !color;
-						}
-					}
-					return sb;
-				});
-			new CCMD("convars", "cvars")
-				.SetCallback((sb, t) => {
-					foreach(var cvar in UConsoleDB.cvars.OrderBy(c => c.aliases[0]))
-						sb.AppendLine(string.Join(",", cvar.aliases));
-					return sb;
-				});
-			new CCMD("physball")
-				.SetDescription("Spawns a physics sphere in front of the given or active camera.")
-				.SetUsage("physball [/c cameraname] [/u units_ahead def:5]")
-                .SetCommandType(CommandType.MultiArgs)
-				.SetCallback((sb, t) => {
-					var camSpecified = t.multiArgs.ContainsKey("c");
-					var unitsahead = (t.multiArgs.ContainsKey("u")) ? float.Parse(t.multiArgs["u"]) : 5f;
+            new CCommand("revert", "Reverts a cvar to its default value.", CCommandFlags.RequireArgs)
+                .CommandExecuted += (args) => {
+                    var cvar = UConsoleDB.GetCFunc<CVar>(args[0]);
+                    if(cvar == null) {
+                        UConsole.LogErr("CVAR NOT FOUND: " + args[0]);
+                        return false;
+                    }
+                    else {
+                        var isReadonly = (cvar.flags & CVarFlags.ReadOnly) != 0;
+                        if(!isReadonly) {
+                            cvar.Revert();
+                            UConsole.Log("CVar reverted to default: " + cvar.sVal);
+                        }
+                        else {
+                            UConsole.LogWarn(string.Format("CVar {0} IS READ-ONLY.", cvar.alias));
+                        }
+                        return true;
+                    }
+                };
+            new CCommand("revert_all", "Reverts ALL cvars to their default values.")
+               .CommandExecuted += (args) => {
+                   var verbose = args.Length > 0 && args[0] == "v";
+                   foreach(var c in UConsoleDB.cvars) {
+                       var isReadonly = (c.flags & CVarFlags.ReadOnly) != 0;
+                       if(!isReadonly) {
+                           c.Revert();
+                       }
+                       if(verbose) {
+                           if(isReadonly) {
+                               UConsole.LogWarn(string.Format("CVar {0} IS READ-ONLY.", c.alias));
+                           }
+                           else {
+                               UConsole.Log(string.Format("CVar {0} reverted to default: {1}", c.alias, c.sVal));
+                           }
+                       }
+                   }
+                   UConsole.Log("Reverted all cvars to default values.");
+                   return true;
+               };
+            new CCommand("help", "Returns help information.")
+                .CommandExecuted += (args) => {
+                    if(args.Length != 0) {
+                        var command = UConsoleDB.GetCFunc<CCommand>(args[0]);
+                        if(command == null) {
+                            UConsole.LogErr("COMMAND NOT FOUND: " + args[0]);
+                            return false;
+                        }
+                        else {
+                            UConsole.Log(command.alias);
+                            UConsole.Log("\t" + command.description);
+                            UConsole.Log("\t\tusage: " + command.usage);
+                            return true;
+                        }
+                    }
+                    else {
+                        var color = false;
+                        foreach(var c in UConsoleDB.ccmds.OrderBy(c => c.alias)) {
+                            var sb = new StringBuilder();
+                            sb.AppendLine(c.alias);
+                            sb.AppendLine("\t" + c.description);
+                            sb.AppendLine("\tusage: " + c.usage);
+                            if(color) {
+                                UConsole.Log(UConsole.Colorize(sb.ToString(), Color.cyan));
+                            }
+                            else {
+                                UConsole.Log(sb.ToString());
+                            }
+                            color = !color;
+                        }
+                        return true;
+                    }
+                };
+            new CCommand("cvars", "Lists all registered cvars.")
+                .CommandExecuted += (args) => {
+                    foreach(var cvar in UConsoleDB.cvars.OrderBy(c => c.alias)) {
+                        UConsole.Log(cvar.alias);
+                    }
+                    return true;
+                };
+            new CCommand("physball", "Spawns a physics sphere in front of the active or main camera.")
+                .CommandExecuted += (args) => {
+                    var unitsAhead = 10f;
+                    if(args.Length != 0) {
+                        float.TryParse(args[0], out unitsAhead);
+                    }
 
-					Camera currentCam;
-					if(Camera.allCameras.Length == 0)
-						currentCam = null;
-					else if(camSpecified)
-						currentCam = Camera.allCameras.FirstOrDefault(c => c.name == t.multiArgs["c"]);
-					else
-						currentCam = Camera.allCameras[0];
+                    var currentCam = Camera.main;
+                    if(currentCam == null) {
+                        currentCam = Camera.allCameras[0];
+                    }
+                    if(currentCam == null) {
+                        UConsole.LogWarn("NO CAMERA FOUND");
+                    }
 
-					if(currentCam == null)
-						sb.AppendLine(UConsole.ColorizeWarn("NO CAMERA FOUND"));
-
-					var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-					sphere.AddComponent<Rigidbody>();
-					var origin = (currentCam == null) ? Vector3.zero : currentCam.transform.forward;
-					var position = origin * unitsahead;
-					sphere.transform.position = position;
-					return sb.AppendLine("Physball spawned at " + position.ToString());
-				});
-		}
+                    var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    sphere.AddComponent<Rigidbody>();
+                    var origin = (currentCam == null) ? Vector3.zero : currentCam.transform.forward;
+                    var position = origin * unitsAhead;
+                    sphere.transform.position = position;
+                    UConsole.Log("Physball spawned at " + position.ToString());
+                    return true;
+                };
+        }
 
 
 #if UNITY_EDITOR
         static void RegisterEditorCommands() {
-			new CCMD("ue.view")
-				.SetDescription("EDITOR ONLY: Brings the selected object into view in the scene view.")
-				.SetRequireSelectedGameObj()
-				.SetCallback((sb, t) => {
+            new CCommand("ue.view", "EDITOR ONLY: Brings the selected object into view in the scene view.", CCommandFlags.EditorOnly)
+                .CommandExecuted += (args) => {
                     Selection.activeGameObject = UConsole.selectedObj;
-					var scene = GetSceneView();
-					scene.Show(true);
-					scene.Focus();
-					scene.FrameSelected();
-					return sb.Append("Showing in Editor...");
-				});
+                    var scene = GetSceneView();
+                    scene.Show(true);
+                    scene.Focus();
+                    scene.FrameSelected();
+                    UConsole.Log("Showing in Editor...");
+                    return true;
+                };
 
-			new CCMD("ue.select")
-			.SetDescription("EDITOR ONLY: Sets the selected object as the Editor selected object.")
-			.SetRequireSelectedGameObj()
-			.SetCallback((sb, t) => {
+            new CCommand("ue.select", "EDITOR ONLY: Sets the selected object as the Editor selected object.", CCommandFlags.EditorOnly | CCommandFlags.RequireSelectedObj).CommandExecuted += (args) => {
                 Selection.activeGameObject = UConsole.selectedObj;
-				return sb.Append("Selected in Editor...");
-			});
-		}
+                EditorGUIUtility.PingObject(Selection.activeGameObject);
+                UConsole.Log("Selected in Editor...");
+                return true;
+            };
+        }
 
         static SceneView GetSceneView() {
-			var scene = SceneView.currentDrawingSceneView;
-			if(scene == null)
-				scene = SceneView.lastActiveSceneView;
-			if(scene == null && SceneView.sceneViews.Count > 0)
-				scene = SceneView.sceneViews[0] as SceneView;
-			if(scene == null)
-				scene = SceneView.CreateInstance<SceneView>();
-			return scene;
-		}
+            var scene = SceneView.currentDrawingSceneView;
+            if(scene == null)
+                scene = SceneView.lastActiveSceneView;
+            if(scene == null && SceneView.sceneViews.Count > 0)
+                scene = SceneView.sceneViews[0] as SceneView;
+            if(scene == null)
+                scene = SceneView.CreateInstance<SceneView>();
+            return scene;
+        }
 #endif
         static void RBActions() {
-			new CCMD("rb.wakeup")
-				.SetDescription("Wakes up the selected object's rigidbody, if it exists.")
-				.SetRequireSelectedGameObj()
-				.SetCallback((sb, t) => {
+            new CCommand("rb.wakeup", "Wakes up the selected object's rigidbody, if it exists.", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
                     var rb = UConsole.selectedObj.GetComponent<Rigidbody>();
-					if(rb == null)
-						return sb.Append(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
+                    if(rb == null) {
+                        UConsole.LogErr(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
+                        return false;
+                    }
+                    rb.WakeUp();
+                    UConsole.Log("Waking up rigidbody...");
+                    return true;
+                };
 
-					rb.WakeUp();
-					return sb.Append("Waking up rigidbody...");
-				});
-
-			new CCMD("rb.kmon")
-				.SetDescription("Makes the selected object's rigidbody kinematic, if it exists.")
-				.SetRequireSelectedGameObj()
-				.SetCallback((sb, t) => {
+            new CCommand("rb.kmon", "Makes the selected object's rigidbody kinematic, if it exists.", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
                     var rb = UConsole.selectedObj.GetComponent<Rigidbody>();
-					if(rb == null)
-						return sb.Append(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
+                    if(rb == null) {
+                        UConsole.LogErr(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
+                        return false;
+                    }
 
-					rb.isKinematic = true;
-					return sb.Append("Kinematic now on...");
-				});
+                    rb.isKinematic = true;
+                    UConsole.Log("Kinematic now on...");
+                    return true;
+                };
 
-			new CCMD("rb.kmoff")
-				.SetDescription("Makes the selected object's rigidbody NOT kinematic, if it exists.")
-				.SetRequireSelectedGameObj()
-				.SetCallback((sb, t) => {
+            new CCommand("rb.kmoff", "Makes the selected object's rigidbody NOT kinematic, if it exists.", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
                     var rb = UConsole.selectedObj.GetComponent<Rigidbody>();
-					if(rb == null)
-						return sb.Append(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
+                    if(rb == null) {
+                        UConsole.LogErr(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
+                        return false;
+                    }
 
-					rb.isKinematic = false;
-					return sb.Append("Kinematic now off...");
-				});
+                    rb.isKinematic = false;
+                    UConsole.Log("Kinematic now off...");
+                    return true;
+                };
 
-			new CCMD("rb.kmtoggle")
-				.SetDescription("Toggles the kinematic state for the selected object's rigidbody, if it exists.")
-				.SetRequireSelectedGameObj()
-				.SetCallback((sb, t) => {
+            new CCommand("rb.kmtoggle", "Toggles the kinematic state for the selected object's rigidbody, if it exists.", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
                     var rb = UConsole.selectedObj.GetComponent<Rigidbody>();
-					if(rb == null)
-						return sb.Append(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
+                    if(rb == null) {
+                        UConsole.LogErr(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
+                        return false;
+                    }
 
-					rb.isKinematic = !rb.isKinematic;
-					return sb.Append("Kinematic now is " + rb.isKinematic);
-				});
-		}
-	}
+                    rb.isKinematic = !rb.isKinematic;
+                    UConsole.Log("Kinematic now is " + rb.isKinematic);
+                    return true;
+                };
+        }
+    }
 }

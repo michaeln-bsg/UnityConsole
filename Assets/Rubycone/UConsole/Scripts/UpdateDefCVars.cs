@@ -7,17 +7,21 @@ namespace Rubycone.UConsole {
         [SerializeField, TextArea]
         string aboutStr;
 
-        // Update is called once per frame
+        void Awake() {
+            DefaultCommands.Load();
+            DefaultCVars.Load();
+        }
+
         void Update() {
-            DefaultConVars.uVersion.SetVal(Application.unityVersion);
-            DefaultConVars.platform.SetVal(Application.platform);
-            DefaultConVars.loadedLevelName.SetVal(Application.loadedLevelName);
-            DefaultConVars.loadedLevel.SetVal(Application.loadedLevel);
-            DefaultConVars.internetReachability.SetVal(Application.internetReachability);
-            DefaultConVars.time.SetVal(Time.realtimeSinceStartup);
-            DefaultConVars.scaledTime.SetVal(Time.time);
-            DefaultConVars.dateTime.SetVal(DateTime.Now);
-            DefaultConVars.about.SetVal(aboutStr);
+            DefaultCVars.uVersion.SetValue(Application.unityVersion);
+            DefaultCVars.platform.SetValue(Application.platform);
+            DefaultCVars.loadedLevelName.SetValue(Application.loadedLevelName);
+            DefaultCVars.loadedLevel.SetValue(Application.loadedLevel);
+            DefaultCVars.internetReachability.SetValue(Application.internetReachability);
+            DefaultCVars.time.SetValue(Time.realtimeSinceStartup);
+            DefaultCVars.scaledTime.SetValue(Time.time);
+            DefaultCVars.dateTime.SetValue(DateTime.Now);
+            DefaultCVars.about.SetValue(aboutStr);
         }
     }
 }

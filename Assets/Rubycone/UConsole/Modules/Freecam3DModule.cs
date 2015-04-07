@@ -20,7 +20,7 @@ namespace Rubycone.UConsole.Modules {
         }
         protected override void OnModuleRegistered() {
             SetupCamera();
-            controller.onToggleConsole += controller_onToggleConsole;
+            controller.OnToggleConsole += controller_onToggleConsole;
         }
 
         void controller_onToggleConsole(bool obj) {

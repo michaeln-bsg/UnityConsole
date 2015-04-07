@@ -12,8 +12,8 @@ namespace Rubycone.UConsole {
     /// </summary>
     [DisallowMultipleComponent]
     public class UConsoleController : MonoBehaviour, IScrollHandler {
-        public event Action<bool> onToggleConsole;
-        public event Action<string, string> onSubmitCommand;
+        public event Action<bool> OnToggleConsole;
+        public event Action<string, string> OnSubmitCommand;
 
         public bool isConsoleOpen { get; private set; }
 
@@ -22,18 +22,18 @@ namespace Rubycone.UConsole {
         public UConsoleInputField input;
         public CanvasGroup group;
 
-        public GameObject modulesObj;
-
         CVar scrollSpeedCVar;
 
         [SerializeField, Range(0f, 1f)]
-        float onAlpha = 0.75f;
+        float onAlpha = 0.75f, passthroughAlpha = 0.25f;
         [SerializeField, Range(0f, 1f)]
         float scrollSpeed = 0.25f;
+
         public KeyCode toggleKey = KeyCode.BackQuote;
-        private List<string> cache = new List<string>();
-        private UConsoleModule[] modules;
-        private int cachePointer = 0;
+
+        List<string> cache = new List<string>();
+        UConsoleModule[] modules;
+        int cachePointer = 0;
 
         public bool inputHasFocus {
             get {
@@ -81,8 +81,8 @@ namespace Rubycone.UConsole {
         }
 
         void OnEndEdit() {
-            if(onSubmitCommand != null)
-                onSubmitCommand(input.fieldHeader, input.userText);
+            if(OnSubmitCommand != null)
+                OnSubmitCommand(input.fieldHeader, input.userText);
             scrollbar.value = 0;
 
             ActivateInputField(true);
@@ -123,8 +123,8 @@ namespace Rubycone.UConsole {
                 Time.timeScale = 1f;
             }
 
-            if(onToggleConsole != null) {
-                onToggleConsole(open);
+            if(OnToggleConsole != null) {
+                OnToggleConsole(open);
             }
             if(open) {
                 Time.timeScale = 0f;
@@ -173,21 +173,21 @@ namespace Rubycone.UConsole {
                 .SetDescription("Clears the screen")
                 .SetUsage("noargs");
 
-            DontDestroyOnLoad(gameObject);
             Unhook();
             CloseConsole();
             input.OnTabEntered += inputField_OnTabEntered;
+            DontDestroyOnLoad(this);
         }
 
         void OnEnable() {
             UConsole.OnConsoleLog += AddNewOutputLine;
-            onSubmitCommand += ExecuteFromInput;
+            OnSubmitCommand += ExecuteFromInput;
             OpenConsole();
         }
 
         void OnDisable() {
             UConsole.OnConsoleLog -= AddNewOutputLine;
-            onSubmitCommand -= ExecuteFromInput;
+            OnSubmitCommand -= ExecuteFromInput;
             CloseConsole();
         }
 
@@ -263,8 +263,9 @@ namespace Rubycone.UConsole {
                             scrollSpeed = Mathf.Clamp01(newSpeed);
                             cvar.SetVal(newSpeed, false);
                         }
-                        else
+                        else {
                             cvar.SetVal(s, false);
+                        }
                     };
                 }
             }
@@ -276,39 +277,42 @@ namespace Rubycone.UConsole {
         }
 
         private void SetFromCache(bool upPressed) {
-            if(cache.Count == 0)
+            if(cache.Count == 0) {
                 return;
+            }
             SetInput(cache[cachePointer]);
-            if(upPressed)
+            if(upPressed) {
                 cachePointer++;
-            else
+            }
+            else {
                 cachePointer--;
+            }
 
             cachePointer = Mathf.Clamp(cachePointer, 0, cache.Count - 1);
         }
 
         private void ExecuteFromInput(string header, string input) {
             input = input.Trim();
-            if(cache.Count == 0 || !cache[0].Equals(input, StringComparison.CurrentCultureIgnoreCase))
+            if(cache.Count == 0 || !cache[0].Equals(input, StringComparison.CurrentCultureIgnoreCase)) {
                 cache.Insert(0, input);
+            }
             UConsole.Log(header + input);
             var output = UConsoleDB.ExecuteFromInput(input);
-            if(string.IsNullOrEmpty(output) == false)
+            if(string.IsNullOrEmpty(output) == false) {
                 UConsole.Log("\t" + output);
+            }
         }
 
-        internal void RegisterModules() {
-            if(modulesObj != null) {
-                modules = modulesObj.GetComponents<UConsoleModule>().Where(m => m.isActiveAndEnabled).ToArray();
-                foreach(var m in modules) {
-                    m.RegisterModule(this);
-                }
+        void RegisterModules() {
+            modules = transform.root.GetComponentsInChildren<UConsoleModule>().Where(m => m.isActiveAndEnabled).ToArray();
+            foreach(var m in modules) {
+                m.RegisterModule(this);
             }
         }
 
         void OnApplicationQuit() {
-            onToggleConsole = null;
-            onSubmitCommand = null;
+            OnToggleConsole = null;
+            OnSubmitCommand = null;
         }
 
         internal void AllowPassthrough(bool passthrough) {

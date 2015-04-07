@@ -1,15 +1,21 @@
 ﻿
 using UnityEngine;
-public delegate void OnConsoleLog(string line);
 
 namespace Rubycone.UConsole {
+    public delegate void OnConsoleLog(string line);
     public static class UConsole {
+        public static event OnConsoleLog OnConsoleLog;
+
+        public static UConsoleController controller { get; private set; }
+
         public static GameObject selectedObj { get; set; }
+
         static Component _selectedComponent;
         public static Component selectedComponent {
             get {
-                if(selectedObj == null && _selectedComponent != null)
+                if(selectedObj == null && _selectedComponent != null) {
                     _selectedComponent = null;
+                }
                 return _selectedComponent;
             }
             set {
@@ -17,18 +23,31 @@ namespace Rubycone.UConsole {
             }
         }
 
-        public static OnConsoleLog OnConsoleLog;
-
         public static readonly Color ORANGE = new Color(255, 127, 0);
 
+        public static void Create(GameObject consolePrefab) {
+            if(controller == null) {
+                var console = GameObject.Instantiate<GameObject>(consolePrefab);
+                controller = console.GetComponentInChildren<UConsoleController>();
+            }
+        }
+
+        public static void Create(string prefabResource) {
+            if(controller == null) {
+                Create(Resources.Load<GameObject>(prefabResource));
+            }
+        }
+
         public static void Log(string line) {
-            if(OnConsoleLog != null)
+            if(OnConsoleLog != null) {
                 OnConsoleLog(line);
+            }
         }
 
         public static void Log(string line, Color32 color) {
-            if(OnConsoleLog != null)
+            if(OnConsoleLog != null) {
                 OnConsoleLog(Colorize(line, color));
+            }
         }
 
         public static string Colorize(string str, Color32 color) {

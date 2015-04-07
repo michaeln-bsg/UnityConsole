@@ -50,6 +50,18 @@ namespace Rubycone.UConsole {
             }
         }
 
+        public static void LogErr(string line) {
+            if(OnConsoleLog != null) {
+                OnConsoleLog(ColorizeErr(line));
+            }
+        }
+
+        public static void LogWarn(string line) {
+            if(OnConsoleLog != null) {
+                OnConsoleLog(ColorizeWarn(line));
+            }
+        }
+
         public static string Colorize(string str, Color32 color) {
             return string.Format("<color={0}>{1}</color>", ColorToHex(color), str);
         }

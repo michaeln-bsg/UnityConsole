@@ -58,10 +58,10 @@ namespace Rubycone.UConsole {
             if(text.Length == 0)
                 return;
 
-            var matchingCmds = UConsoleDB.ccmds.SelectMany(c => c.aliases)
+            var matchingCmds = UConsoleDB.ccmds.Select(c => c.alias)
                 .Where(a => a.StartsWith(text, StringComparison.CurrentCultureIgnoreCase)).ToArray();
 
-            var matchingCvars = UConsoleDB.cvars.SelectMany(c => c.aliases)
+            var matchingCvars = UConsoleDB.cvars.Select(c => c.alias)
                 .Where(a => a.StartsWith(text, StringComparison.CurrentCultureIgnoreCase)).ToArray();
 
             if(matchingCmds.Length == 0 && matchingCvars.Length == 0)
@@ -165,13 +165,10 @@ namespace Rubycone.UConsole {
 
         void Start() {
             RegisterModules();
-            new CCMD("cls", "clear")
-                .SetCallback((sb, t) => {
-                    ClearOutput();
-                    return null;
-                })
-                .SetDescription("Clears the screen")
-                .SetUsage("noargs");
+            new CCommand("cls", "Clears the screen").CommandExecuted += (args) => {
+                ClearOutput();
+                return true;
+            };
 
             Unhook();
             CloseConsole();
@@ -233,7 +230,7 @@ namespace Rubycone.UConsole {
                 return;
             }
 
-            hookMode = UConsoleDB.GetCVar("hookmode").GetByte();
+            hookMode = (byte)UConsoleDB.GetCFunc<CVar>("hookmode").iVal;
 
             //Begin console-open-only checks
             if(Input.GetKeyDown(KeyCode.UpArrow)) {
@@ -255,17 +252,10 @@ namespace Rubycone.UConsole {
             }
 
             if(scrollSpeedCVar == null) {
-                scrollSpeedCVar = UConsoleDB.GetCVar("scrollspeed");
+                scrollSpeedCVar = UConsoleDB.GetCFunc<CVar>("scrollspeed");
                 if(scrollSpeedCVar != null) {
-                    scrollSpeedCVar.CVarValueChanged += (s, cvar) => {
-                        float newSpeed;
-                        if(cvar.TryGetFloat(out newSpeed)) {
-                            scrollSpeed = Mathf.Clamp01(newSpeed);
-                            cvar.SetVal(newSpeed, false);
-                        }
-                        else {
-                            cvar.SetVal(s, false);
-                        }
+                    scrollSpeedCVar.CVarValueChanged += (v, cvar) => {
+                        scrollSpeed = cvar.fVal;
                     };
                 }
             }

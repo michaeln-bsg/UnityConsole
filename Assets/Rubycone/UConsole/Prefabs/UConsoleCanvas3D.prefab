@@ -44,8 +44,8 @@ GameObject:
   m_Component:
   - 224: {fileID: 22479138}
   - 225: {fileID: 22584862}
-  - 114: {fileID: 11438492}
   - 114: {fileID: 11433216}
+  - 114: {fileID: 11438492}
   m_Layer: 5
   m_Name: Console
   m_TagString: Untagged
@@ -402,8 +402,8 @@ MonoBehaviour:
   selectedObjLabel: {fileID: 11464844}
   input: {fileID: 11401540}
   group: {fileID: 22584862}
-  modulesObj: {fileID: 117288}
   onAlpha: .75
+  passthroughAlpha: .25
   scrollSpeed: .100000001
   toggleKey: 96
 --- !u!114 &11448758

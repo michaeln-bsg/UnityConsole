@@ -164,6 +164,7 @@ namespace Rubycone.UConsole {
         }
 
         void Start() {
+            UConsole.controller = this;
             RegisterModules();
             new CCommand("cls", "Clears the screen").CommandExecuted += (args) => {
                 ClearOutput();

@@ -59,7 +59,7 @@ namespace Rubycone.UConsole {
 
             new CCommand("toggle", "Toggles the selected GameObject.", CCommandFlags.RequireSelectedObj)
                 .CommandExecuted += (args) => {
-                    UConsole.selectedObj.SetActive(UConsole.selectedObj.activeSelf);
+                    UConsole.selectedObj.SetActive(!UConsole.selectedObj.activeSelf);
                     UConsole.Log("GameObject active == " + UConsole.selectedObj.activeSelf + ".");
                     return true;
                 };

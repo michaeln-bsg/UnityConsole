@@ -6,7 +6,7 @@ namespace Rubycone.UConsole {
     public static class UConsole {
         public static event OnConsoleLog OnConsoleLog;
 
-        public static UConsoleController controller { get; private set; }
+        public static UConsoleController controller { get; set; }
 
         public static GameObject selectedObj { get; set; }
 

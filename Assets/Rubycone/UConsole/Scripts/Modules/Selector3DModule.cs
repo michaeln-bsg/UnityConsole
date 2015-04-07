@@ -14,6 +14,12 @@ namespace Rubycone.UConsole.Modules {
         }
 
         private void CheckForSelection() {
+            if(eventCamera == null) {
+                eventCamera = Camera.main;
+            }
+            if(eventCamera == null && Camera.allCamerasCount > 0) {
+                eventCamera = Camera.allCameras[0];
+            }
             if(Input.GetMouseButtonDown(1)) {
                 RaycastHit hitInfo;
                 if(Physics.Raycast(eventCamera.ScreenPointToRay(Input.mousePosition), out hitInfo)) {
@@ -31,6 +37,19 @@ namespace Rubycone.UConsole.Modules {
         }
 
         protected override void OnModuleDeactivate() {
+        }
+
+        protected override void OnModuleRegistered() {
+            UConsole.controller.OnToggleConsole += controller_OnToggleConsole;
+        }
+
+        void controller_OnToggleConsole(bool activated) {
+            if(activated) {
+                ActivateModule();
+            }
+            else {
+                DeactivateModule();
+            }
         }
     }
 }

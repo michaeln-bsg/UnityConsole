@@ -22,7 +22,7 @@ namespace Rubycone.UConsole.Modules {
         bool shuttingDown = false;
 
         public void ActivateModule() {
-            if(state == ModuleState.Deactivated && isActiveAndEnabled) {
+            if(state == ModuleState.Deactivated && enabled) {
                 OnModuleActivate();
                 state = ModuleState.Activated;
             }
@@ -46,7 +46,7 @@ namespace Rubycone.UConsole.Modules {
         }
 
         void Update() {
-            if(state == ModuleState.Activated && isActiveAndEnabled) {
+            if(state == ModuleState.Activated && enabled) {
                 state = ModuleState.Updating;
                 OnModuleUpdate();
                 state = ModuleState.Activated;

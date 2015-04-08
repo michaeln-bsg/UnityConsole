@@ -11,16 +11,7 @@ namespace Rubycone.UConsole.Modules {
         protected override void OnModuleActivate() { }
 
         protected override void OnModuleRegistered() {
-            controller.OnToggleConsole += controller_onToggleConsole;
-        }
-
-        void controller_onToggleConsole(bool obj) {
-            if(obj) {
-                ActivateModule();
-            }
-            else {
-                DeactivateModule();
-            }
+            consoleTogglesModule = true;
         }
 
         protected override void OnModuleUpdate() {
@@ -29,7 +20,7 @@ namespace Rubycone.UConsole.Modules {
         }
 
         private void CheckForPassthrough() {
-            controller.AllowPassthrough(Input.GetKey(KeyCode.LeftControl));
+            UConsole.controller.AllowPassthrough(Input.GetKey(KeyCode.LeftControl));
         }
 
         private void CheckForSelection() {
@@ -37,8 +28,8 @@ namespace Rubycone.UConsole.Modules {
                 var hit = Physics2D.Raycast(eventCamera.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
                 if(hit.collider != null) {
                     UConsole.selectedObj = hit.collider.gameObject;
-                    controller.selectedObjLabel.text = UConsole.selectedObj.name + " " + UConsole.selectedObj.GetInstanceID();
-                    controller.ActivateInputField(false);
+                    UConsole.controller.selectedObjLabel.text = UConsole.selectedObj.name + " " + UConsole.selectedObj.GetInstanceID();
+                    UConsole.controller.ActivateInputField(false);
                     return;
                 }
             }

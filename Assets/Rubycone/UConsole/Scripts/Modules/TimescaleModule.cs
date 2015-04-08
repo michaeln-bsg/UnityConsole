@@ -22,16 +22,7 @@ namespace Rubycone.UConsole.Modules {
         }
 
         protected override void OnModuleRegistered() {
-            UConsole.controller.OnToggleConsole += controller_OnToggleConsole;
-        }
-
-        void controller_OnToggleConsole(bool isOpen) {
-            if(isOpen) {
-                ActivateModule();
-            }
-            else {
-                DeactivateModule();
-            }
+            consoleTogglesModule = true;
         }
     }
 }

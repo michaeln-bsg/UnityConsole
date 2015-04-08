@@ -293,9 +293,14 @@ namespace Rubycone.UConsole {
         }
 
         void RegisterModules() {
-            modules = transform.root.GetComponentsInChildren<UConsoleModule>().Where(m => m.isActiveAndEnabled).ToArray();
+            var modules = transform.root.GetComponentsInChildren<UConsoleModule>().Where(m => m.enabled).ToArray();
             foreach(var m in modules) {
-                m.RegisterModule(this);
+                if(this.modules.Any(mod => mod.GetType() == m.GetType())) {
+                    m.enabled = false;
+                    Debug.LogError("DUPLICATE MODULE FOUND, OF TYPE: " + m.GetType().FullName);
+                    continue;
+                }
+                m.RegisterModule();
             }
         }
 

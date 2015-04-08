@@ -21,16 +21,7 @@ namespace Rubycone.UConsole.Modules {
             freecam.gameObject.SetActive(false);
         }
         protected override void OnModuleRegistered() {
-            controller.OnToggleConsole += controller_onToggleConsole;
-        }
-
-        void controller_onToggleConsole(bool obj) {
-            if(obj) {
-                ActivateModule();
-            }
-            else {
-                DeactivateModule();
-            }
+            consoleTogglesModule = true;
         }
 
         //Control camera

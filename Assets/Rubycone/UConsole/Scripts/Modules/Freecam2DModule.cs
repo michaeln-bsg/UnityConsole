@@ -17,21 +17,12 @@ namespace Rubycone.UConsole.Modules {
             freecam2D.gameObject.SetActive(false);
         }
         protected override void OnModuleRegistered() {
-            controller.OnToggleConsole += controller_onToggleConsole;
-        }
-
-        void controller_onToggleConsole(bool obj) {
-            if(obj) {
-                ActivateModule();
-            }
-            else {
-                DeactivateModule();
-            }
+            consoleTogglesModule = true;
         }
 
         //Control camera
         protected override void OnModuleUpdate() {
-            if(!controller.inputHasFocus) {
+            if(!UConsole.controller.inputHasFocus) {
                 ApplyDirectPositionalInput();
                 ApplyZooming();
             }

@@ -20,7 +20,7 @@ namespace Rubycone.UConsole.Modules {
                 RaycastHit hitInfo;
                 if(Physics.Raycast(eventCamera.ScreenPointToRay(Input.mousePosition), out hitInfo)) {
                     UConsole.selectedObj = hitInfo.collider.gameObject;
-                    controller.ActivateInputField(false);
+                    UConsole.controller.ActivateInputField(false);
                 }
             }
             if(Input.GetKeyDown(KeyCode.Escape)) {
@@ -29,23 +29,13 @@ namespace Rubycone.UConsole.Modules {
         }
 
         private void CheckForPassthrough() {
-            controller.AllowPassthrough(Input.GetKey(KeyCode.LeftControl));
+            UConsole.controller.AllowPassthrough(Input.GetKey(KeyCode.LeftControl));
         }
 
-        protected override void OnModuleDeactivate() {
-        }
+        protected override void OnModuleDeactivate() { }
 
         protected override void OnModuleRegistered() {
-            UConsole.controller.OnToggleConsole += controller_OnToggleConsole;
-        }
-
-        void controller_OnToggleConsole(bool activated) {
-            if(activated) {
-                ActivateModule();
-            }
-            else {
-                DeactivateModule();
-            }
+            consoleTogglesModule = true;
         }
     }
 }

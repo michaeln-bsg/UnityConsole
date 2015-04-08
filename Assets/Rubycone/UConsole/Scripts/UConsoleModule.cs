@@ -11,7 +11,30 @@ namespace Rubycone.UConsole.Modules {
         }
 
         public ModuleState state { get; private set; }
-        protected UConsoleController controller { get; private set; }
+        bool _consoleTogglesModule = false;
+        public bool consoleTogglesModule {
+            get {
+                return _consoleTogglesModule;
+            }
+            protected set {
+                _consoleTogglesModule = value;
+                if(value) {
+                    UConsole.controller.OnToggleConsole += controller_OnToggleConsole;
+                }
+                else {
+                    UConsole.controller.OnToggleConsole -= controller_OnToggleConsole;
+                }
+            }
+        }
+
+        void controller_OnToggleConsole(bool isOpen) {
+            if(isOpen) {
+                ActivateModule();
+            }
+            else {
+                DeactivateModule();
+            }
+        }
 
         protected abstract void OnModuleActivate();
         protected abstract void OnModuleDeactivate();
@@ -53,8 +76,7 @@ namespace Rubycone.UConsole.Modules {
             }
         }
 
-        public void RegisterModule(UConsoleController controller) {
-            this.controller = controller;
+        public void RegisterModule() {
             OnModuleRegistered();
             state = ModuleState.Deactivated;
         }

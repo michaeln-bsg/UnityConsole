@@ -2,6 +2,9 @@
 using System.Collections;
 
 namespace Rubycone.UConsole.Modules {
+    /// <summary>
+    /// This module handles all command behaviour
+    /// </summary>
     [AddComponentMenu("UConsole/Modules/UConsole Core")]
     [DisallowMultipleComponent]
     public class UConsoleCoreModule : UConsoleModule {

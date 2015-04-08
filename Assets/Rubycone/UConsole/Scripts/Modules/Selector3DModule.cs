@@ -2,6 +2,9 @@
 using System.Collections;
 
 namespace Rubycone.UConsole.Modules {
+    /// <summary>
+    /// This module is used to select GameObjects with 3D colliders.
+    /// </summary>
     [AddComponentMenu("UConsole/Modules/Selector3D")]
     [DisallowMultipleComponent]
     public class Selector3DModule : UConsoleModule {

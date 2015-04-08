@@ -2,6 +2,9 @@
 using System.Collections;
 
 namespace Rubycone.UConsole.Modules {
+    /// <summary>
+    /// This module is used to select GameObjects with 2D colliders.
+    /// </summary>
     [AddComponentMenu("UConsole/Modules/Selector2D")]
     [DisallowMultipleComponent]
     public class Selector2DModule : UConsoleModule {

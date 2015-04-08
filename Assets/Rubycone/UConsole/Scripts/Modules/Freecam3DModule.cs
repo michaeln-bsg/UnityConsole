@@ -42,12 +42,8 @@ namespace Rubycone.UConsole.Modules {
 
         //Control camera
         protected override void OnModuleUpdate() {
-            if(!controller.inputHasFocus) {
-                ApplyDirectPositionalInput();
-                CheckRotationalInput();
-                freecamObj.transform.localRotation
-                    = Quaternion.Lerp(freecamObj.transform.localRotation, targetRotation, rotateSmoothing * Time.unscaledDeltaTime);
-            }
+            ApplyDirectPositionalInput();
+            CheckRotationalInput();
         }
 
         private void CheckRotationalInput() {
@@ -57,46 +53,33 @@ namespace Rubycone.UConsole.Modules {
             if(Input.GetMouseButton(1)) {
                 mx = Input.GetAxis("Mouse X");
                 my = Input.GetAxis("Mouse Y");
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+            else {
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
             }
 
             if(keypadLook) {
                 var kpl = 10f;
                 var hkpl = kpl / 2f;
-                if(Input.GetKey(KeyCode.Keypad6)) {
+                if(Input.GetKey(KeyCode.UpArrow)) {
                     mx -= kpl;
                 }
-                if(Input.GetKey(KeyCode.Keypad4)) {
+                if(Input.GetKey(KeyCode.DownArrow)) {
                     mx += kpl;
                 }
-                if(Input.GetKey(KeyCode.Keypad8)) {
+                if(Input.GetKey(KeyCode.LeftArrow)) {
                     my -= kpl;
                 }
-                if(Input.GetKey(KeyCode.Keypad2)) {
+                if(Input.GetKey(KeyCode.RightArrow)) {
                     my += kpl;
-                }
-
-                if(Input.GetKey(KeyCode.Keypad9)) {
-                    mx -= hkpl;
-                    my -= hkpl;
-                }
-                if(Input.GetKey(KeyCode.Keypad3)) {
-                    mx -= hkpl;
-                    my += hkpl;
-                }
-                if(Input.GetKey(KeyCode.Keypad1)) {
-                    mx += hkpl;
-                    my += hkpl;
-                }
-                if(Input.GetKey(KeyCode.Keypad7)) {
-                    mx += hkpl;
-                    my -= hkpl;
                 }
             }
 
-            var rotation = freecamObj.transform.localRotation;
-            var xQ = Quaternion.AngleAxis(mx, -Vector3.up);
-            var yQ = Quaternion.AngleAxis(my, Vector3.right);
-            targetRotation = rotation * xQ * yQ;
+            freecamObj.transform.Rotate(Vector3.right, -my);
+            freecamObj.transform.Rotate(Vector3.up, mx);
         }
 
         private void ApplyDirectPositionalInput() {

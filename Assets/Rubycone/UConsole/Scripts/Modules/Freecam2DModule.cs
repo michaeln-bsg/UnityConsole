@@ -2,6 +2,9 @@
 using System.Collections;
 
 namespace Rubycone.UConsole.Modules {
+    /// <summary>
+    /// This module adds a 2D "scene camera" to UConsole.
+    /// </summary>
     [AddComponentMenu("UConsole/Modules/Freecam2D")]
     [DisallowMultipleComponent]
     public class Freecam2DModule : UConsoleModule {

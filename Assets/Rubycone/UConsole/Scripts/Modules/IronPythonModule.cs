@@ -4,6 +4,9 @@ using Microsoft.Scripting.Hosting;
 using IronPython.Hosting;
 
 namespace Rubycone.UConsole.Modules {
+    /// <summary>
+    /// This module uses IronPython to embed Python into UConsole.
+    /// </summary>
     [AddComponentMenu("UConsole/Modules/IronPython")]
     [DisallowMultipleComponent]
     public class IronPythonModule : UConsoleModule {

@@ -2,6 +2,9 @@
 using System.Collections;
 
 namespace Rubycone.UConsole.Modules {
+    /// <summary>
+    /// This module sets Unity's timescale to a specific value when the console is toggled.
+    /// </summary>
     [AddComponentMenu("UConsole/Modules/Timescale")]
     [DisallowMultipleComponent]
     public class TimescaleModule : UConsoleModule {

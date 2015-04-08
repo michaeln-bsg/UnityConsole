@@ -20,14 +20,14 @@ namespace Rubycone.UConsole.Modules {
             if(eventCamera == null && Camera.allCamerasCount > 0) {
                 eventCamera = Camera.allCameras[0];
             }
-            if(Input.GetMouseButtonDown(1)) {
+            if(Input.GetMouseButtonDown(0)) {
                 RaycastHit hitInfo;
                 if(Physics.Raycast(eventCamera.ScreenPointToRay(Input.mousePosition), out hitInfo)) {
                     UConsole.selectedObj = hitInfo.collider.gameObject;
                     controller.ActivateInputField(false);
                 }
             }
-            else if(Input.GetKeyDown(KeyCode.Escape)) {
+            if(Input.GetKeyDown(KeyCode.Escape)) {
                 UConsole.selectedObj = null;
             }
         }

@@ -2,6 +2,8 @@
 using System.Collections;
 
 namespace Rubycone.UConsole.Modules {
+    [AddComponentMenu("UConsole/Modules/Timescale")]
+    [DisallowMultipleComponent]
     public class TimescaleModule : UConsoleModule {
         [SerializeField]
         float consoleTimescale = 0f;
@@ -11,13 +13,25 @@ namespace Rubycone.UConsole.Modules {
             if(consoleTimescale < 0f) {
                 consoleTimescale = 0f;
             }
-            previousTimescale = Time.timeScale;
-            Time.timeScale = consoleTimescale;
+            previousTimescale = DefaultCVars.timescale.fVal;
+            DefaultCVars.timescale.SetValue(consoleTimescale);
         }
 
         protected override void OnModuleDeactivate() {
-            Time.timeScale = previousTimescale;
+            DefaultCVars.timescale.SetValue(previousTimescale);
         }
 
+        protected override void OnModuleRegistered() {
+            UConsole.controller.OnToggleConsole += controller_OnToggleConsole;
+        }
+
+        void controller_OnToggleConsole(bool isOpen) {
+            if(isOpen) {
+                ActivateModule();
+            }
+            else {
+                DeactivateModule();
+            }
+        }
     }
 }

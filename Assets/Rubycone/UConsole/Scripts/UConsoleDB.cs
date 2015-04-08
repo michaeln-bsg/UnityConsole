@@ -29,10 +29,10 @@ namespace Rubycone.UConsole {
         }
 
         public static string ExecuteFromInput(string input) {
-            var parts = input.Split(' ');
-            var alias = parts[0];
+            var alias = input.Split(' ')[0];
+            var args = ParseArgs(input, alias);
+
             var command = GetCFunc<CCommand>(alias);
-            var args = parts.Skip(1).ToArray();
 
             //no commands found, check cvars
             if(command == null) {
@@ -41,7 +41,7 @@ namespace Rubycone.UConsole {
                     return UConsole.ColorizeErr(string.Format(@"COMMAND/CONVAR ""{0}"" NOT FOUND", alias));
                 }
                 var isReadonly = (cvar.flags & CVarFlags.ReadOnly) != 0;
-                if(parts.Length < 2 || isReadonly) {
+                if(args[0] == string.Empty || isReadonly) {
                     var desc = (isReadonly) ? UConsole.ColorizeWarn(cvar.description) : cvar.description;
                     return string.Format("{0}\n\t\tvalue: {1}", desc, UConsole.Colorize(cvar.sVal, Color.green));
                 }
@@ -69,15 +69,65 @@ namespace Rubycone.UConsole {
             return null;
         }
 
+        private static string[] ParseArgs(string input, string alias) {
+            input = input.Remove(input.IndexOf(alias), alias.Length); //remove alias
+            bool inQuotes = false, inArg = false, shouldAdd = false;
+
+            var sb = new StringBuilder();
+            var argList = new List<string>();
+
+            for(int i = 0; i < input.Length; i++) {
+                char c = input[i];
+                bool isEscaped = input[Mathf.Clamp(i - 1, 0, input.Length)] == '\\';
+
+                //reached beginning quote
+                if(!inQuotes && !isEscaped && c == '"') {
+                    inQuotes = true;
+                    inArg = true;
+                }
+                //reached end quote
+                else if(inQuotes && !isEscaped && c == '"') {
+                    inQuotes = false;
+                    inArg = false;
+                    shouldAdd = true;
+                }
+                else if(!inQuotes && inArg && c == ' ') {
+                    shouldAdd = true;
+                }
+                else if(!(c == '\\' && !isEscaped)) { //if an unescaped backslash
+                    sb.Append(c);
+                    inArg = true;
+                    if(i == input.Length - 1) {
+                        shouldAdd = true;
+                    }
+                }
+
+                if(shouldAdd) {
+                    argList.Add(sb.ToString().Trim());
+                    sb.Remove(0, sb.Length);
+                    shouldAdd = false;
+                }
+            }
+
+            if(argList.Count == 0) {
+                argList.Add(string.Empty);
+            }
+            return argList.ToArray();
+        }
+
         public static T GetCFunc<T>(string alias) where T : CFunc {
-            if(typeof(T) == typeof(CVar)) {
+            var t = typeof(T);
+            var tCVar = typeof(CVar);
+            var tCCommand = typeof(CCommand);
+
+            if(t == tCVar) {
                 return cvars.SingleOrDefault(c => c.alias == alias) as T;
             }
-            else if(typeof(T) == typeof(CCommand)) {
+            else if(t == tCCommand) {
                 return ccmds.SingleOrDefault(c => c.alias == alias) as T;
             }
             else {
-                throw new System.ArgumentException("Invalid type T!");
+                throw new System.ArgumentException("Invalid type: " + t.FullName);
             }
         }
     }

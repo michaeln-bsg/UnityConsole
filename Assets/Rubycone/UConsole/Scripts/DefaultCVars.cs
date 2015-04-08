@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Rubycone.UConsole {
     public static class DefaultCVars {
+        public static CVar hookMode { get; private set; }
+        public static CVar scrollSpeed { get; private set; }
+        public static CVar runInBackground { get; private set; }
         public static CVar uVersion { get; private set; }
         public static CVar platform { get; private set; }
         public static CVar loadedLevel { get; private set; }
@@ -12,6 +15,10 @@ namespace Rubycone.UConsole {
         public static CVar scaledTime { get; private set; }
         public static CVar dateTime { get; private set; }
         public static CVar about { get; private set; }
+        public static CVar physSolver { get; private set; }
+        public static CVar phys2DPSolver { get; private set; }
+        public static CVar phys2DVSolver { get; private set; }
+        public static CVar timescale { get; private set; }
 
         static object @lock = new object();
         static bool loaded;
@@ -31,16 +38,17 @@ namespace Rubycone.UConsole {
         static void RegisterUnityConVars() {
             lock(@lock) {
                 //UnityConsole settings
-                var hm = new CVar("hookmode", "The hookmode for Unity's application output.", 0f, CVarFlags.Archive);
-                hm.fMin = 0f;
-                hm.fMax = 3f;
+                hookMode = new CVar("hookmode", "The hookmode for Unity's application output.", 0f, CVarFlags.Archive);
+                hookMode.fMin = 0f;
+                hookMode.fMax = 3f;
 
-                var ss = new CVar("scrollspeed", "The console scrollspeed", 0.1f, CVarFlags.Archive);
-                ss.fMin = 0f;
-                ss.fMax = 1f;
+                scrollSpeed = new CVar("scrollspeed", "The console scrollspeed", 0.1f, CVarFlags.Archive);
+                scrollSpeed.fMin = 0f;
+                scrollSpeed.fMax = 1f;
 
                 //Unity application
-                new CVar("runinbackground", "If the Unity Application should run in the background.", Application.runInBackground).CVarValueChanged += RunInBackgroundCVarChanged;
+                runInBackground = new CVar("runinbackground", "If the Unity Application should run in the background.", Application.runInBackground);
+                runInBackground.CVarValueChanged += RunInBackgroundCVarChanged;
 
                 uVersion = new CVar("uversion", "Unity's version", Application.unityVersion, CVarFlags.ReadOnly);
                 platform = new CVar("platform", "The current runtime platform.", Application.platform, CVarFlags.ReadOnly);
@@ -49,12 +57,19 @@ namespace Rubycone.UConsole {
                 internetReachability = new CVar("webstatus", "Current internet reachability status.", Application.internetReachability, CVarFlags.ReadOnly);
                 about = new CVar("about", "Info string regarding this product.", CVarFlags.ReadOnly);
 
-                new CVar("phys_solver", "Physics solver iteration count.", Physics.solverIterationCount).CVarValueChanged += PhysSolverCVarChanged;
-                new CVar("phys2d_psolver", "2D Physics position solver iteration count.", Physics2D.positionIterations).CVarValueChanged += Phys2DPosSolverCVarChanged;
-                new CVar("phys2d_vsolver", "2D Physics velocity solver iteration count.", Physics2D.velocityIterations).CVarValueChanged += Phys2DVelSolverCVarChanged;
+                physSolver = new CVar("phys_solver", "Physics solver iteration count.", Physics.solverIterationCount);
+                physSolver.CVarValueChanged += PhysSolverCVarChanged;
+
+                phys2DPSolver = new CVar("phys2d_psolver", "2D Physics position solver iteration count.", Physics2D.positionIterations);
+                phys2DPSolver.CVarValueChanged += Phys2DPosSolverCVarChanged;
+
+                phys2DVSolver = new CVar("phys2d_vsolver", "2D Physics velocity solver iteration count.", Physics2D.velocityIterations);
+                phys2DVSolver.CVarValueChanged += Phys2DVelSolverCVarChanged;
 
                 //Time
-                new CVar("ts", "Unity's timescale.", Time.timeScale).CVarValueChanged += TimescaleCVarChanged;
+                timescale = new CVar("timescale", "Unity's timescale.", Time.timeScale);
+                timescale.CVarValueChanged += TimescaleCVarChanged;
+
                 time = new CVar("time", "Unity's real-time since startup.", Time.realtimeSinceStartup, CVarFlags.ReadOnly);
                 scaledTime = new CVar("scaledtime", "Unity's scaled time.", Time.time, CVarFlags.ReadOnly);
                 dateTime = new CVar("dt", "Current system datetime.", DateTime.Now, CVarFlags.ReadOnly);

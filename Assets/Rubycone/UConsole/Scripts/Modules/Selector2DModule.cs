@@ -2,14 +2,13 @@
 using System.Collections;
 
 namespace Rubycone.UConsole.Modules {
+    [AddComponentMenu("UConsole/Modules/Selector2D")]
+    [DisallowMultipleComponent]
     public class Selector2DModule : UConsoleModule {
-        public Camera eventCamera;
+        [SerializeField]
+        Camera eventCamera;
 
-        protected override void OnModuleActivate() {
-            if(eventCamera == null) {
-                eventCamera = Camera.main;
-            }
-        }
+        protected override void OnModuleActivate() { }
 
         protected override void OnModuleRegistered() {
             controller.OnToggleConsole += controller_onToggleConsole;

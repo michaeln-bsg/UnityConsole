@@ -11,22 +11,23 @@ using UnityEditor;
 namespace Rubycone.UConsole {
 
     public static class DefaultCommands {
-
         static object @lock = new object();
         static bool loaded;
+
+        //Just in case something tries to access before Load is called
+        static DefaultCommands() {
+            Load();
+        }
 
         public static void Load() {
             if(loaded)
                 return;
 
             lock(@lock) {
-                MetaCommands();
                 UnityCommands();
+                MetaCommands();
                 RBActions();
-
-#if UNITY_EDITOR
                 RegisterEditorCommands();
-#endif
                 loaded = true;
             }
         }
@@ -43,6 +44,13 @@ namespace Rubycone.UConsole {
                     return true;
                 };
 
+            new CCommand("rename", "Renames the selected GameObject.", "rename name", CCommandFlags.RequireSelectedObj | CCommandFlags.RequireArgs)
+                .CommandExecuted += (args) => {
+                    var oldName = UConsole.selectedObj.name;
+                    UConsole.selectedObj.name = args[0];
+                    UConsole.LogSuccess(string.Format("{0} has been renamed to {1}.", oldName, args[0]));
+                    return true;
+                };
             new CCommand("destroy", "Destroys the selected GameObject.", CCommandFlags.RequireSelectedObj)
                 .CommandExecuted += (args) => {
                     GameObject.Destroy(UConsole.selectedObj);
@@ -80,17 +88,20 @@ namespace Rubycone.UConsole {
                     UConsole.Log("Message sent");
                     return true;
                 };
-            new CCommand("sendmsgr", "Sends a message using Unity's standard message system (requires receiver).", CCommandFlags.RequireSelectedObj).CommandExecuted += (args) => {
-                UConsole.selectedObj.SendMessage(args[0], SendMessageOptions.RequireReceiver);
-                UConsole.Log("Message sent");
-                return true;
-            };
 
-            new CCommand("sendmsgup", "Sends a message upwards using Unity's standard message system.", CCommandFlags.RequireSelectedObj).CommandExecuted += (args) => {
-                UConsole.selectedObj.SendMessageUpwards(args[0], SendMessageOptions.DontRequireReceiver);
-                UConsole.Log("Message sent");
-                return true;
-            };
+            new CCommand("sendmsgr", "Sends a message using Unity's standard message system (requires receiver).", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
+                    UConsole.selectedObj.SendMessage(args[0], SendMessageOptions.RequireReceiver);
+                    UConsole.Log("Message sent");
+                    return true;
+                };
+
+            new CCommand("sendmsgup", "Sends a message upwards using Unity's standard message system.", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
+                    UConsole.selectedObj.SendMessageUpwards(args[0], SendMessageOptions.DontRequireReceiver);
+                    UConsole.Log("Message sent");
+                    return true;
+                };
 
             new CCommand("sendmsgrup", "Sends a message upwards using Unity's standard message system (requires receiver).", CCommandFlags.RequireSelectedObj).CommandExecuted += (args) => {
                 UConsole.selectedObj.SendMessageUpwards(args[0], SendMessageOptions.RequireReceiver);
@@ -105,11 +116,12 @@ namespace Rubycone.UConsole {
                     return true;
                 };
 
-            new CCommand("bmsgr", "Broadcasts a message using Unity's standard message system (requires receiver).", CCommandFlags.RequireSelectedObj).CommandExecuted += (args) => {
-                UConsole.selectedObj.BroadcastMessage(args[0], SendMessageOptions.RequireReceiver);
-                UConsole.Log("Message sent");
-                return true;
-            };
+            new CCommand("bmsgr", "Broadcasts a message using Unity's standard message system (requires receiver).", CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
+                    UConsole.selectedObj.BroadcastMessage(args[0], SendMessageOptions.RequireReceiver);
+                    UConsole.Log("Message sent");
+                    return true;
+                };
 
             new CCommand("selectc", "Selects a component on the selected object.", CCommandFlags.RequireSelectedObj)
                 .CommandExecuted += (args) => {
@@ -125,13 +137,21 @@ namespace Rubycone.UConsole {
                     return component != null;
                 };
 
-            new CCommand("selectedc", "Returns the selected component on the selected object.", CCommandFlags.RequireSelectedComponent).CommandExecuted += (args) => {
-                UConsole.Log("Selected component (IID:" + UConsole.selectedComponent.GetInstanceID() + ")");
-                return true;
-            };
+            new CCommand("selectedc", "Returns the selected component on the selected object.", CCommandFlags.RequireSelectedComponent)
+                .CommandExecuted += (args) => {
+                    UConsole.Log("Selected component (IID:" + UConsole.selectedComponent.GetInstanceID() + ")");
+                    return true;
+                };
         }
 
         static void MetaCommands() {
+            new CCommand("dbg_list_args", "CONSOLE_DEBUG: Lists the arguments of this command", "dbg_list_args [arg1][arg2][arg3]...")
+                .CommandExecuted += (args) => {
+                    foreach(var a in args) {
+                        UConsole.Log(a);
+                    }
+                    return true;
+                };
             new CCommand("revert", "Reverts a cvar to its default value.", CCommandFlags.RequireArgs)
                 .CommandExecuted += (args) => {
                     var cvar = UConsoleDB.GetCFunc<CVar>(args[0]);
@@ -153,7 +173,7 @@ namespace Rubycone.UConsole {
                 };
             new CCommand("revert_all", "Reverts ALL cvars to their default values.")
                .CommandExecuted += (args) => {
-                   var verbose = args.Length > 0 && args[0] == "v";
+                   var verbose = args[0] == "v";
                    foreach(var c in UConsoleDB.cvars) {
                        var isReadonly = (c.flags & CVarFlags.ReadOnly) != 0;
                        if(!isReadonly) {
@@ -171,9 +191,9 @@ namespace Rubycone.UConsole {
                    UConsole.Log("Reverted all cvars to default values.");
                    return true;
                };
-            new CCommand("help", "Returns help information.")
+            new CCommand("help", "Returns help information.", "help [command]")
                 .CommandExecuted += (args) => {
-                    if(args.Length != 0) {
+                    if(args[0] != string.Empty) {
                         var command = UConsoleDB.GetCFunc<CCommand>(args[0]);
                         if(command == null) {
                             UConsole.LogErr("COMMAND NOT FOUND: " + args[0]);
@@ -192,7 +212,7 @@ namespace Rubycone.UConsole {
                             var sb = new StringBuilder();
                             sb.AppendLine(c.alias);
                             sb.AppendLine("\t" + c.description);
-                            sb.AppendLine("\tusage: " + c.usage);
+                            sb.Append("\tusage: " + c.usage);
                             if(color) {
                                 UConsole.Log(UConsole.Colorize(sb.ToString(), Color.cyan));
                             }
@@ -204,18 +224,36 @@ namespace Rubycone.UConsole {
                         return true;
                     }
                 };
-            new CCommand("cvars", "Lists all registered cvars.")
+            new CCommand("shelp", "Returns concise help information.")
                 .CommandExecuted += (args) => {
-                    foreach(var cvar in UConsoleDB.cvars.OrderBy(c => c.alias)) {
-                        UConsole.Log(cvar.alias);
+                    var sb = new StringBuilder();
+                    foreach(var c in UConsoleDB.ccmds.OrderBy(c => c.alias)) {
+                        sb.Append(c.alias + ", ");
                     }
+                    sb.Remove(sb.Length - 2, 2);
+                    UConsole.Log(sb.ToString().Trim());
                     return true;
                 };
-            new CCommand("physball", "Spawns a physics sphere in front of the active or main camera.")
+            new CCommand("cvars", "Lists all registered cvars, listed in yellow if read-only.")
+                .CommandExecuted += (args) => {
+                    var sb = new StringBuilder();
+                    foreach(var cvar in UConsoleDB.cvars.OrderBy(c => c.alias)) {
+                        if((cvar.flags & CVarFlags.ReadOnly) != 0) {
+                            sb.Append(UConsole.ColorizeWarn(cvar.alias) + ", ");
+                        }
+                        else {
+                            sb.Append(cvar.alias + ", ");
+                        }
+                    }
+                    sb.Remove(sb.Length - 2, 2);
+                    UConsole.Log(sb.ToString().Trim());
+                    return true;
+                };
+            new CCommand("physball", "Spawns a physics sphere in front of the active or main camera.", "physball [unitsahead]")
                 .CommandExecuted += (args) => {
                     var unitsAhead = 10f;
-                    if(args.Length != 0) {
-                        float.TryParse(args[0], out unitsAhead);
+                    if(!float.TryParse(args[0], out unitsAhead)) {
+                        unitsAhead = 10f;
                     }
 
                     var currentCam = Camera.main;
@@ -238,6 +276,7 @@ namespace Rubycone.UConsole {
 
 
 #if UNITY_EDITOR
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
         static void RegisterEditorCommands() {
             new CCommand("ue.view", "EDITOR ONLY: Brings the selected object into view in the scene view.", CCommandFlags.EditorOnly)
                 .CommandExecuted += (args) => {
@@ -250,12 +289,13 @@ namespace Rubycone.UConsole {
                     return true;
                 };
 
-            new CCommand("ue.select", "EDITOR ONLY: Sets the selected object as the Editor selected object.", CCommandFlags.EditorOnly | CCommandFlags.RequireSelectedObj).CommandExecuted += (args) => {
-                Selection.activeGameObject = UConsole.selectedObj;
-                EditorGUIUtility.PingObject(Selection.activeGameObject);
-                UConsole.Log("Selected in Editor...");
-                return true;
-            };
+            new CCommand("ue.select", "EDITOR ONLY: Sets the selected object as the Editor selected object.", CCommandFlags.EditorOnly | CCommandFlags.RequireSelectedObj)
+                .CommandExecuted += (args) => {
+                    Selection.activeGameObject = UConsole.selectedObj;
+                    EditorGUIUtility.PingObject(Selection.activeGameObject);
+                    UConsole.Log("Selected in Editor...");
+                    return true;
+                };
         }
 
         static SceneView GetSceneView() {
@@ -281,8 +321,7 @@ namespace Rubycone.UConsole {
                     UConsole.Log("Waking up rigidbody...");
                     return true;
                 };
-
-            new CCommand("rb.kmon", "Makes the selected object's rigidbody kinematic, if it exists.", CCommandFlags.RequireSelectedObj)
+            new CCommand("rb.kmtoggle", "Toggles the kinematic state for the selected object's rigidbody, if it exists.", "kmtoggle [1/0]", CCommandFlags.RequireSelectedObj)
                 .CommandExecuted += (args) => {
                     var rb = UConsole.selectedObj.GetComponent<Rigidbody>();
                     if(rb == null) {
@@ -290,33 +329,15 @@ namespace Rubycone.UConsole {
                         return false;
                     }
 
-                    rb.isKinematic = true;
-                    UConsole.Log("Kinematic now on...");
-                    return true;
-                };
-
-            new CCommand("rb.kmoff", "Makes the selected object's rigidbody NOT kinematic, if it exists.", CCommandFlags.RequireSelectedObj)
-                .CommandExecuted += (args) => {
-                    var rb = UConsole.selectedObj.GetComponent<Rigidbody>();
-                    if(rb == null) {
-                        UConsole.LogErr(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
-                        return false;
+                    if(args[0] == "0") {
+                        rb.isKinematic = false;
                     }
-
-                    rb.isKinematic = false;
-                    UConsole.Log("Kinematic now off...");
-                    return true;
-                };
-
-            new CCommand("rb.kmtoggle", "Toggles the kinematic state for the selected object's rigidbody, if it exists.", CCommandFlags.RequireSelectedObj)
-                .CommandExecuted += (args) => {
-                    var rb = UConsole.selectedObj.GetComponent<Rigidbody>();
-                    if(rb == null) {
-                        UConsole.LogErr(UConsole.ColorizeErr("NO RIGIDBODY ON SELECTED OBJECT"));
-                        return false;
+                    else if(args[0] == "1") {
+                        rb.isKinematic = true;
                     }
-
-                    rb.isKinematic = !rb.isKinematic;
+                    else {
+                        rb.isKinematic = !rb.isKinematic;
+                    }
                     UConsole.Log("Kinematic now is " + rb.isKinematic);
                     return true;
                 };

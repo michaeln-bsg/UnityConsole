@@ -1,5 +1,6 @@
 ﻿using Rubycone.UConsole.Modules;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,13 +8,16 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Rubycone.UConsole {
+    public delegate void OnToggleConsole(bool isOpen);
+    public delegate void OnSubmitCommand(string alias, string argString);
+
     /// <summary>
     /// The behavior of the Console.
     /// </summary>
     [DisallowMultipleComponent]
     public class UConsoleController : MonoBehaviour, IScrollHandler {
-        public event Action<bool> OnToggleConsole;
-        public event Action<string, string> OnSubmitCommand;
+        public event OnToggleConsole OnToggleConsole;
+        public event OnSubmitCommand OnSubmitCommand;
 
         public bool isConsoleOpen { get; private set; }
 
@@ -83,7 +87,6 @@ namespace Rubycone.UConsole {
         void OnEndEdit() {
             if(OnSubmitCommand != null)
                 OnSubmitCommand(input.fieldHeader, input.userText);
-            scrollbar.value = 0;
 
             ActivateInputField(true);
         }
@@ -118,21 +121,23 @@ namespace Rubycone.UConsole {
             else {
                 DeselectInputField();
             }
-
-            if(!open) {
-                Time.timeScale = 1f;
-            }
-
             if(OnToggleConsole != null) {
                 OnToggleConsole(open);
-            }
-            if(open) {
-                Time.timeScale = 0f;
             }
         }
 
         public void AddNewOutputLine(string line) {
             output.text += Environment.NewLine + line;
+            StartCoroutine(DelayedScroll(0f, 0.05f));
+        }
+
+        private IEnumerator DelayedScroll(float scrollValue, float delay) {
+            scrollValue = Mathf.Clamp01(scrollValue);
+            var start = Time.realtimeSinceStartup;
+            while(Time.realtimeSinceStartup - start < delay) {
+                yield return null;
+            }
+            scrollbar.value = scrollValue;
         }
 
         public void ClearOutput() {
@@ -164,7 +169,6 @@ namespace Rubycone.UConsole {
         }
 
         void Start() {
-            UConsole.controller = this;
             RegisterModules();
             new CCommand("cls", "Clears the screen").CommandExecuted += (args) => {
                 ClearOutput();
@@ -174,6 +178,9 @@ namespace Rubycone.UConsole {
             Unhook();
             CloseConsole();
             input.OnTabEntered += inputField_OnTabEntered;
+            DefaultCVars.scrollSpeed.CVarValueChanged += (oldValues, cvar) => {
+                scrollSpeed = cvar.fVal;
+            };
             DontDestroyOnLoad(this);
         }
 
@@ -250,15 +257,6 @@ namespace Rubycone.UConsole {
 
             if(input.isFocused && input.userText.Length > 0 && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))) {
                 OnEndEdit();
-            }
-
-            if(scrollSpeedCVar == null) {
-                scrollSpeedCVar = UConsoleDB.GetCFunc<CVar>("scrollspeed");
-                if(scrollSpeedCVar != null) {
-                    scrollSpeedCVar.CVarValueChanged += (v, cvar) => {
-                        scrollSpeed = cvar.fVal;
-                    };
-                }
             }
 
             //if(isConsoleOpen &&

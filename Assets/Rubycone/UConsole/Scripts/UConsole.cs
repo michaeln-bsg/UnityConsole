@@ -6,7 +6,7 @@ namespace Rubycone.UConsole {
     public static class UConsole {
         public static event OnConsoleLog OnConsoleLog;
 
-        public static UConsoleController controller { get; set; }
+        public static UConsoleController controller { get; private set; }
 
         public static GameObject selectedObj { get; set; }
 
@@ -56,6 +56,12 @@ namespace Rubycone.UConsole {
             }
         }
 
+        public static void LogSuccess(string line) {
+            if(OnConsoleLog != null) {
+                OnConsoleLog(ColorizeSuccess(line));
+            }
+        }
+
         public static void LogWarn(string line) {
             if(OnConsoleLog != null) {
                 OnConsoleLog(ColorizeWarn(line));
@@ -72,6 +78,10 @@ namespace Rubycone.UConsole {
 
         public static string ColorizeWarn(string str) {
             return Colorize(str, ORANGE);
+        }
+
+        public static string ColorizeSuccess(string str) {
+            return Colorize(str, Color.green);
         }
 
         static string ColorToHex(Color32 color) {

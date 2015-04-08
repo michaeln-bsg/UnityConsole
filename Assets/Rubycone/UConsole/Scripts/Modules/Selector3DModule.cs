@@ -2,8 +2,10 @@
 using System.Collections;
 
 namespace Rubycone.UConsole.Modules {
+    [AddComponentMenu("UConsole/Modules/Selector3D")]
+    [DisallowMultipleComponent]
     public class Selector3DModule : UConsoleModule {
-
+        [SerializeField]
         Camera eventCamera;
 
         protected override void OnModuleActivate() { }
@@ -14,12 +16,6 @@ namespace Rubycone.UConsole.Modules {
         }
 
         private void CheckForSelection() {
-            if(eventCamera == null) {
-                eventCamera = Camera.main;
-            }
-            if(eventCamera == null && Camera.allCamerasCount > 0) {
-                eventCamera = Camera.allCameras[0];
-            }
             if(Input.GetMouseButtonDown(0)) {
                 RaycastHit hitInfo;
                 if(Physics.Raycast(eventCamera.ScreenPointToRay(Input.mousePosition), out hitInfo)) {

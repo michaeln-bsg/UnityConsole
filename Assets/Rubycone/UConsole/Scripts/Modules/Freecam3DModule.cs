@@ -2,9 +2,11 @@
 using System.Collections;
 
 namespace Rubycone.UConsole.Modules {
+    [AddComponentMenu("UConsole/Modules/Freecam3D")]
+    [DisallowMultipleComponent]
     public class Freecam3DModule : UConsoleModule {
+        [SerializeField]
         Camera freecam;
-        GameObject freecamObj;
 
         public Vector3 targetPosition;
         public Quaternion targetRotation;
@@ -13,13 +15,12 @@ namespace Rubycone.UConsole.Modules {
         public bool keypadLook       = true;
 
         protected override void OnModuleActivate() {
-            freecamObj.SetActive(true);
+            freecam.gameObject.SetActive(true);
         }
         protected override void OnModuleDeactivate() {
-            freecamObj.SetActive(false);
+            freecam.gameObject.SetActive(false);
         }
         protected override void OnModuleRegistered() {
-            SetupCamera();
             controller.OnToggleConsole += controller_onToggleConsole;
         }
 
@@ -30,14 +31,6 @@ namespace Rubycone.UConsole.Modules {
             else {
                 DeactivateModule();
             }
-        }
-
-        private void SetupCamera() {
-            freecamObj = new GameObject("Freecam");
-            freecamObj.transform.position = Vector3.zero;
-            freecam = freecamObj.AddComponent<Camera>();
-            freecam.depth = 100f;
-            freecamObj.SetActive(false);
         }
 
         //Control camera
@@ -78,34 +71,34 @@ namespace Rubycone.UConsole.Modules {
                 }
             }
 
-            freecamObj.transform.Rotate(Vector3.right, -my);
-            freecamObj.transform.Rotate(Vector3.up, mx);
+            freecam.transform.Rotate(Vector3.right, -my);
+            freecam.transform.Rotate(Vector3.up, mx);
         }
 
         private void ApplyDirectPositionalInput() {
-            var position = freecamObj.transform.position;
+            var position = freecam.transform.position;
             var dtMoveSpeed = moveSpeed * Time.unscaledDeltaTime;
 
             if(Input.GetKey(KeyCode.D)) {
-                position += freecamObj.transform.right * dtMoveSpeed;
+                position += freecam.transform.right * dtMoveSpeed;
             }
             if(Input.GetKey(KeyCode.A)) {
-                position -= freecamObj.transform.right * dtMoveSpeed;
+                position -= freecam.transform.right * dtMoveSpeed;
             }
             if(Input.GetKey(KeyCode.W)) {
-                position += freecamObj.transform.forward * dtMoveSpeed;
+                position += freecam.transform.forward * dtMoveSpeed;
             }
             if(Input.GetKey(KeyCode.S)) {
-                position -= freecamObj.transform.forward * dtMoveSpeed;
+                position -= freecam.transform.forward * dtMoveSpeed;
             }
             if(Input.GetKey(KeyCode.E)) {
-                position += freecamObj.transform.up * dtMoveSpeed;
+                position += freecam.transform.up * dtMoveSpeed;
             }
             if(Input.GetKey(KeyCode.Q)) {
-                position -= freecamObj.transform.up * dtMoveSpeed;
+                position -= freecam.transform.up * dtMoveSpeed;
             }
 
-            freecamObj.transform.position = position;
+            freecam.transform.position = position;
         }
     }
 }

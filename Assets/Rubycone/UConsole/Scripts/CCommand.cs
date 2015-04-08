@@ -37,10 +37,17 @@ namespace Rubycone.UConsole {
         public event CommandExecuted CommandExecuted;
 
         public CCommand(string alias, string description)
-            : this(alias, description, CCommandFlags.None) { }
+            : this(alias, description, "noargs") { }
+
+        public CCommand(string alias, string description, string usage)
+            : this(alias, description, usage, CCommandFlags.None) { }
 
         public CCommand(string alias, string description, CCommandFlags flags)
+            : this(alias, description, "noargs", flags) { }
+
+        public CCommand(string alias, string description, string usage, CCommandFlags flags)
             : base(alias, description) {
+            this.usage = usage;
             this.flags = flags;
         }
 

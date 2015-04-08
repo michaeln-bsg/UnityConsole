@@ -2,20 +2,21 @@
 using System.Collections;
 
 namespace Rubycone.UConsole.Modules {
+    [AddComponentMenu("UConsole/Modules/Freecam2D")]
+    [DisallowMultipleComponent]
     public class Freecam2DModule : UConsoleModule {
+        [SerializeField]
         Camera freecam2D;
-        GameObject freecam2DObj;
 
         public float moveSpeed = 0.1f;
 
         protected override void OnModuleActivate() {
-            freecam2DObj.SetActive(true);
+            freecam2D.gameObject.SetActive(true);
         }
         protected override void OnModuleDeactivate() {
-            freecam2DObj.SetActive(false);
+            freecam2D.gameObject.SetActive(false);
         }
         protected override void OnModuleRegistered() {
-            SetupCamera();
             controller.OnToggleConsole += controller_onToggleConsole;
         }
 
@@ -25,21 +26,6 @@ namespace Rubycone.UConsole.Modules {
             }
             else {
                 DeactivateModule();
-            }
-        }
-
-        private void SetupCamera() {
-            freecam2DObj = new GameObject("Freecam2D");
-            freecam2DObj.transform.position = Vector3.zero;
-
-            freecam2D = freecam2DObj.AddComponent<Camera>();
-            freecam2D.depth = 100f;
-            freecam2D.orthographic = true;
-
-            freecam2DObj.SetActive(false);
-
-            if(GetComponent<Selector2DModule>() != null) {
-                GetComponent<Selector2DModule>().eventCamera = freecam2D;
             }
         }
 
@@ -86,13 +72,13 @@ namespace Rubycone.UConsole.Modules {
                 my -= kpl;
             }
 
-            var position = freecam2DObj.transform.position;
+            var position = freecam2D.transform.position;
             var dtMoveSpeed = moveSpeed * Time.unscaledDeltaTime;
 
             position.x += mx * boostMultiplier * dtMoveSpeed;
             position.y += my * boostMultiplier * dtMoveSpeed;
 
-            freecam2DObj.transform.position = position;
+            freecam2D.transform.position = position;
         }
     }
 }

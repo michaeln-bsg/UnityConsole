@@ -91,12 +91,13 @@ public class {0}
             var method = type.GetMethod(CSHARP_ENV_METHOD);
             BaseDevConsole.instance.Print(method.Invoke(instance, null));
         }
+
         [DevConsoleCommand("Executes code that has a return value.")]
         private static void Exec(string code)
         {
             ExecMethod(CSHARP_ENV_EXEC, code);
         }
-        [DevConsoleCommand("Executes code that has no return value.", "exec_void")]
+        [DevConsoleCommand("Executes code that has no return value.")]
         private static void ExecVoid(string code)
         {
             ExecMethod(CSHARP_ENV_EXEC_VOID, code);

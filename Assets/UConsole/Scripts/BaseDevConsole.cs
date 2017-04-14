@@ -10,14 +10,13 @@ namespace BeardPhantom.UConsole
     {
         public static BaseDevConsole instance { get; protected set; }
 
-        [SerializeField]
-        protected InputField input;
-        [SerializeField]
-        protected Text outputTemplate;
-        protected KeyCode inputHistoryUp = KeyCode.UpArrow;
-        protected KeyCode inputHistoryDown = KeyCode.DownArrow;
+        protected KeyCode[] inputHistoryUp = new KeyCode[] { KeyCode.UpArrow };
+        protected KeyCode[] inputHistoryDown = new KeyCode[] { KeyCode.DownArrow };
+        protected KeyCode[] inputSubmit = new KeyCode[] { KeyCode.Return, KeyCode.KeypadEnter };
+        protected StringComparer cmdComparison = StringComparer.OrdinalIgnoreCase;
         protected Color errColor = Color.red;
         protected Color warningColor = new Color(1f, 0.5f, 0f);
+        protected Color inputEchoColor = new Color(0.75f, 0.75f, 0.75f);
         protected Color normalColor = Color.white;
         protected RectTransform root;
         protected readonly List<string> inputHistory = new List<string>();
@@ -93,19 +92,12 @@ namespace BeardPhantom.UConsole
             gameObject.SetActive(isOpen);
             eventHandler.FireConsoleToggled(isOpen);
         }
-        public void ClearOutput()
-        {
-            var parent = outputTemplate.transform.parent;
-            outputTemplate.transform.SetAsFirstSibling();
-            for (int i = parent.childCount - 1; i > 0; i--)
-            {
-                Destroy(parent.GetChild(i).gameObject);
-            }
-        }
+        public abstract void SetInput(string value);
         public void ClearInput()
         {
-            input.text = string.Empty;
+            SetInput(string.Empty);
         }
+        public abstract void ClearOutput();
         public DevCommandInfo GetCommand(string alias)
         {
             int infoIndex;
@@ -117,53 +109,43 @@ namespace BeardPhantom.UConsole
         }
         public void PrintErr(object output)
         {
-            if (output != null)
-            {
-                PrintInternal(output.ToString(), errColor);
-            }
+            Print(output, errColor);
         }
         public void PrintErr(string output)
         {
-            if (!string.IsNullOrEmpty(output))
-            {
-                PrintInternal(output, errColor);
-            }
+            Print(output, errColor);
         }
         public void PrintWarn(object output)
         {
-            if (output != null)
-            {
-                PrintInternal(output.ToString(), warningColor);
-            }
+            Print(output, warningColor);
         }
         public void PrintWarn(string output)
         {
-            if (!string.IsNullOrEmpty(output))
-            {
-                PrintInternal(output, warningColor);
-            }
+            Print(output, warningColor);
         }
         public void Print(object output)
         {
-            if (output != null)
-            {
-                PrintInternal(output.ToString(), normalColor);
-            }
+            Print(output, normalColor);
         }
         public void Print(string output)
         {
-            if (!string.IsNullOrEmpty(output))
+            Print(output, normalColor);
+        }
+        public void Print(object output, Color color)
+        {
+            if (output != null)
             {
-                PrintInternal(output, normalColor);
+                PrintInternal(output.ToString(), color);
             }
         }
-        protected void PrintInternal(string text, Color color)
+        public void Print(string output, Color color)
         {
-            var instance = Instantiate(outputTemplate, outputTemplate.transform.parent);
-            instance.text = text.Trim();
-            instance.color = color;
-            instance.gameObject.SetActive(true);
+            if (!string.IsNullOrEmpty(output))
+            {
+                PrintInternal(output, color);
+            }
         }
+        protected abstract void PrintInternal(string text, Color color);
         protected virtual void RegisterCommands(params Type[] types)
         {
             commandMap.Clear();
@@ -200,7 +182,7 @@ namespace BeardPhantom.UConsole
         }
         protected virtual void ExecuteCommandString(string text)
         {
-            Print("> " + text);
+            PrintInternal("> " + text, inputEchoColor);
             inputHistory.Add(text);
             inputHistoryIndex = inputHistory.Count;
             var parts = text.Split(' ');
@@ -233,41 +215,33 @@ namespace BeardPhantom.UConsole
                      * optional parameter hasn't been specified
                      */
                     var value = i >= paramsPartsLength ? p.DefaultValue : parts[i + 1];
+                    if (cmd.totalParameters == 1 && p.GetCustomAttributes(typeof(ParamArrayAttribute), false).Length == 0)
+                    {
+
+                    }
                     passedValues[i] = Convert.ChangeType(value, p.ParameterType);
                 }
             }
             Print(cmd.method.Invoke(null, passedValues));
         }
-        protected virtual void OnInputEditEnded(string text)
+        protected void SubmitInput(string input)
         {
-            text = text.Trim();
-            if (string.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(input))
             {
                 return;
             }
-            ExecuteCommandString(text);
-            input.ActivateInputField();
             ClearInput();
-        }
-        protected virtual void Awake()
-        {
-            instance = this;
-            isOpen = true;
-            outputTemplate.gameObject.SetActive(false);
-            commandMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            commands = new List<DevCommandInfo>();
-            root = transform.GetChild(0) as RectTransform;
-            input.onEndEdit.AddListener(OnInputEditEnded);
+            ExecuteCommandString(input);
         }
         protected void UpdateInputHistory()
         {
             var didOffsetInputHistory = false;
-            if (Input.GetKeyDown(inputHistoryUp))
+            if (GetInputDown(inputHistoryUp))
             {
                 didOffsetInputHistory = true;
                 inputHistoryIndex = Mathf.Clamp(inputHistoryIndex - 1, 0, Mathf.Max(0, inputHistory.Count - 1));
             }
-            else if (Input.GetKeyDown(inputHistoryDown))
+            else if (GetInputDown(inputHistoryDown))
             {
                 didOffsetInputHistory = true;
                 inputHistoryIndex = Mathf.Clamp(inputHistoryIndex + 1, 0, Mathf.Max(0, inputHistory.Count - 1));
@@ -276,20 +250,36 @@ namespace BeardPhantom.UConsole
             {
                 if (inputHistory.Count > 0)
                 {
-                    input.text = inputHistory[inputHistoryIndex];
-                    input.caretPosition = input.text.Length;
+                    SetInput(inputHistory[inputHistoryIndex]);
                 }
             }
+        }
+        protected bool GetInputDown(KeyCode[] input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (Input.GetKeyDown(input[i]))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        protected virtual void Awake()
+        {
+            instance = this;
+            isOpen = true;
+            commandMap = new Dictionary<string, int>(cmdComparison);
+            commands = new List<DevCommandInfo>();
+            root = transform.GetChild(0) as RectTransform;
         }
         protected virtual void OnEnable()
         {
             SetOpen(true);
-            input.ActivateInputField();
         }
         protected virtual void OnDisable()
         {
             SetOpen(false);
-            input.DeactivateInputField();
         }
     }
 }

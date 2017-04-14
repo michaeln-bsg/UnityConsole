@@ -8,8 +8,9 @@ namespace BeardPhantom.UConsole
         private const string PREFS_KEY_NOT_FOUND = "PREFSKEY NOT FOUND";
 
         private static readonly StringBuilder output = new StringBuilder();
+        private static string prefsDeleteAllPassword;
 
-        [DevConsoleCommand("Shows help info about a command", "?", "cmds")]
+        [DevConsoleCommand("Shows help info about a command.", "?", "Cmds")]
         private static string Help(string cmdString = "")
         {
             output.Length = 0;
@@ -36,7 +37,7 @@ namespace BeardPhantom.UConsole
             }
             return output.ToString();
         }
-        [DevConsoleCommand("Quits the game", "quit", "qqq")]
+        [DevConsoleCommand("Quits the game.", "Quit", "QQQ")]
         private static void Exit()
         {
 #if UNITY_EDITOR
@@ -45,13 +46,13 @@ namespace BeardPhantom.UConsole
 		    Application.Quit();
 #endif
         }
-        [DevConsoleCommand("Clears the console", "cls")]
+        [DevConsoleCommand("Clears the console.", "CLS")]
         private static void Clear()
         {
             BaseDevConsole.instance.ClearOutput();
         }
-        [DevConsoleCommand("Does a console print test")]
-        private static string Console_Test(int length = 1000)
+        [DevConsoleCommand("Does a console print test.")]
+        private static string ConsoleTest(int length = 1000)
         {
             const string RNDCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             var stringChars = new char[length];
@@ -61,10 +62,12 @@ namespace BeardPhantom.UConsole
             }
             return new string(stringChars);
         }
+        [DevConsoleCommand("Returns a string from PlayerPrefs.")]
         private static string PrefsGet(string key)
         {
             return PlayerPrefs.GetString(key, PREFS_KEY_NOT_FOUND);
         }
+        [DevConsoleCommand("Returns an integer from PlayerPrefs.")]
         private static string PrefsGetI(string key)
         {
             if (PlayerPrefs.HasKey(key))
@@ -73,6 +76,7 @@ namespace BeardPhantom.UConsole
             }
             return PREFS_KEY_NOT_FOUND;
         }
+        [DevConsoleCommand("Returns a float from PlayerPrefs.")]
         private static string PrefsGetF(string key)
         {
             if (PlayerPrefs.HasKey(key))
@@ -81,17 +85,55 @@ namespace BeardPhantom.UConsole
             }
             return PREFS_KEY_NOT_FOUND;
         }
+        [DevConsoleCommand("Sets a string in PlayerPrefs.")]
         private static void PrefsSet(string key, string value)
         {
             PlayerPrefs.SetString(key, value);
         }
+        [DevConsoleCommand("Sets an integer in PlayerPrefs.")]
         private static void PrefsSetI(string key, int value)
         {
             PlayerPrefs.SetInt(key, value);
         }
+        [DevConsoleCommand("Sets a float in PlayerPrefs.")]
         private static void PrefsSetF(string key, float value)
         {
             PlayerPrefs.SetFloat(key, value);
+        }
+        [DevConsoleCommand("Removes a value from PlayerPrefs.")]
+        private static void PrefsDel(string key)
+        {
+            PlayerPrefs.DeleteKey(key);
+        }
+        [DevConsoleCommand("Removes a value from PlayerPrefs.")]
+        private static void PrefsDelAll(string password = "")
+        {
+            var printPass = true;
+            output.Length = 0;
+            if (password == string.Empty || prefsDeleteAllPassword == string.Empty)
+            {
+                const string PASSCHARS = "abcdefg123456789";
+                for (int i = 0; i < 5; i++)
+                {
+                    output.Append(PASSCHARS[Random.Range(0, PASSCHARS.Length)]);
+                }
+                prefsDeleteAllPassword = output.ToString();
+            }
+            else if (password == prefsDeleteAllPassword)
+            {
+                PlayerPrefs.DeleteAll();
+                BaseDevConsole.instance.Print("PlayerPrefs.DeleteAll Success", Color.green);
+                printPass = false;
+                prefsDeleteAllPassword = string.Empty;
+            }
+            else
+            {
+                BaseDevConsole.instance.PrintErr("INVALID PASSWORD");
+            }
+            if (printPass)
+            {
+                BaseDevConsole.instance.PrintWarn(string.Format("Please confirm by resubmitting command with password: {0}", prefsDeleteAllPassword));
+            }
         }
     }
 }

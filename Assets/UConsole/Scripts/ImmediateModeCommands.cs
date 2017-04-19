@@ -1,4 +1,5 @@
-﻿#if DEVCONSOLE_IMMEDIATE
+﻿#if DOTNET_FULL
+#define DEVCONSOLE_IMMEDIATE
 using Microsoft.CSharp;
 using System;
 using System.CodeDom.Compiler;

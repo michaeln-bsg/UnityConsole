@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,6 +7,7 @@ namespace BeardPhantom.UConsole
 {
     public class DevConsole : BaseDevConsole
     {
+        private const string EMPTY_INPUT_REGEX_PATTERN = @"^\s*\n+$";
         [SerializeField]
         private Scrollbar scrollbar;
         [SerializeField]
@@ -16,7 +16,11 @@ namespace BeardPhantom.UConsole
         private InputField input;
 
         private CanvasGroup canvasGroup;
-        private Regex emptyInputRegex = new Regex(@"^\s*\n+$", RegexOptions.Compiled);
+#if DOTNET_FULL
+        private readonly Regex emptyInputRegex = new Regex(EMPTY_INPUT_REGEX_PATTERN, RegexOptions.Compiled);
+#else
+        private readonly Regex emptyInputRegex = new Regex(EMPTY_INPUT_REGEX_PATTERN);
+#endif
         private byte scrollToEndCounter;
         private readonly DevConsoleEventHandler _eventHandler = new DevConsoleEventHandler();
 

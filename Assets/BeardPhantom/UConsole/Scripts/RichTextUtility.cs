@@ -6,7 +6,7 @@ namespace BeardPhantom.UConsole
     {
         public static string MakeColored(this string s, Color c)
         {
-            return string.Format("<color=#{0}>{1}</color>", ColorUtility.ToHtmlStringRGB(c), s);
+            return string.Format("<color=#{0}>{1}</color>", ColorUtility.ToHtmlStringRGBA(c), s);
         }
 
         public static string MakeBold(this string s)

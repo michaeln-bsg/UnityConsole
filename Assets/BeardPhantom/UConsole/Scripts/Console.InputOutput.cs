@@ -61,7 +61,7 @@ namespace BeardPhantom.UConsole
         protected void PrintInternal(string text, Color color)
         {
             var instance = Instantiate(_outputTemplate,
-                _outputTemplate.transform.parent);
+                _scrollRect.content);
             instance.text = text.Trim();
             instance.color = color;
             instance.gameObject.SetActive(true);

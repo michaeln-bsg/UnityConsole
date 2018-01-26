@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c0f4ef3cd0cfb16419476da562bf93ff, type: 3}
-  m_Name: Default Settings
+  m_Name: 
   m_EditorClassIdentifier: 
   StartOpen: 0
   CommandLineOpenArg: -console
@@ -17,6 +17,7 @@ MonoBehaviour:
   InputEchoColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
   ErrorColor: {r: 1, g: 0, b: 0, a: 1}
   WarningColor: {r: 1, g: 0.5, b: 0, a: 1}
+  InputToggle: 60000000
   InputHistoryUp: 11010000
   InputHistoryDown: 12010000
   InputSubmit: 0d0000000f010000

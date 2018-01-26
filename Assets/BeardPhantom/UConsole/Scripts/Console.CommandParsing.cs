@@ -9,7 +9,7 @@ namespace BeardPhantom.UConsole
     {
         public readonly Dictionary<string, int> CommandMap = new Dictionary<string, int>();
 
-        public readonly List<DevCommandInfo> Commands = new List<DevCommandInfo>();
+        public readonly List<CommandInfo> Commands = new List<CommandInfo>();
 
         private readonly Dictionary<Type, object> _commandRegistryInstances
             = new Dictionary<Type, object>();
@@ -22,12 +22,13 @@ namespace BeardPhantom.UConsole
             var aliasList = new List<string>();
             foreach (var type in types)
             {
-                var instance = Activator.CreateInstance(type);
+                var instance = Activator.CreateInstance(type, (object)this);
                 _commandRegistryInstances.Add(type, instance);
                 var methods = new List<MethodInfo>(type.GetMethods(
                     BindingFlags.NonPublic
                     | BindingFlags.Public
-                    | BindingFlags.Static));
+                    | BindingFlags.Static
+                    | BindingFlags.Instance));
 
                 foreach (var method in methods)
                 {
@@ -40,14 +41,13 @@ namespace BeardPhantom.UConsole
                     aliasList.Clear();
                     aliasList.Add(method.Name);
                     aliasList.AddRange(cmd.Aliases);
-                    //cmd.Aliases = aliasList.ToArray();
-                    var info = new DevCommandInfo(method, cmd);
+                    var info = new CommandInfo(method, aliasList.ToArray(), cmd.Description);
                     Commands.Add(info);
-                    for (var i = 0; i < cmd.Aliases.Length; i++)
+                    for (var i = 0; i < aliasList.Count; i++)
                     {
-                        if (!CommandMap.ContainsKey(cmd.Aliases[i]))
+                        if (!CommandMap.ContainsKey(aliasList[i]))
                         {
-                            CommandMap.Add(cmd.Aliases[i], Commands.Count - 1);
+                            CommandMap.Add(aliasList[i], Commands.Count - 1);
                         }
                     }
                 }

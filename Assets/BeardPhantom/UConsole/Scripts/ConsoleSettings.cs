@@ -20,6 +20,8 @@ namespace BeardPhantom.UConsole
         public Color WarningColor = new Color(1f, 0.5f, 0f);
 
         [Header("Input")]
+        public KeyCode[] InputToggle = new KeyCode[] { KeyCode.BackQuote };
+
         public KeyCode[] InputHistoryUp = new KeyCode[] { KeyCode.UpArrow };
 
         public KeyCode[] InputHistoryDown = new KeyCode[] { KeyCode.DownArrow };

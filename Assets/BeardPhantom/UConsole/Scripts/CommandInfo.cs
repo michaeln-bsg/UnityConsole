@@ -1,14 +1,17 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
 namespace BeardPhantom.UConsole
 {
-    public class DevCommandInfo
+    public class CommandInfo
     {
         public readonly MethodInfo Method;
 
-        public readonly ConsoleCommandAttribute Metadata;
-
         public readonly ParameterInfo[] Parameters;
+
+        public readonly IList<string> Aliases;
+
+        public readonly string Description;
 
         public readonly int OptionalParameters;
 
@@ -16,10 +19,11 @@ namespace BeardPhantom.UConsole
 
         public readonly int TotalParameters;
 
-        public DevCommandInfo(MethodInfo method, ConsoleCommandAttribute metadata)
+        public CommandInfo(MethodInfo method, IList<string> aliases, string description)
         {
-            this.Method = method;
-            this.Metadata = metadata;
+            Method = method;
+            Aliases = aliases;
+            Description = description;
             Parameters = method.GetParameters();
             for (int i = 0; i < Parameters.Length; i++)
             {

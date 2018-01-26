@@ -13,7 +13,7 @@ namespace BeardPhantom.UConsole
         private ConsoleSettings _settings;
 
         [SerializeField]
-        private Scrollbar _scrollbar;
+        private ScrollRect _scrollRect;
 
         [SerializeField]
         private Text _outputTemplate;
@@ -21,7 +21,8 @@ namespace BeardPhantom.UConsole
         [SerializeField]
         private InputField _input;
 
-        private RectTransform _root;
+        [SerializeField]
+        private RectTransform _contentRoot;
 
         /// <summary>
         /// 
@@ -32,52 +33,24 @@ namespace BeardPhantom.UConsole
 
         public bool IsOpen { get; protected set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void Initialize()
+        public static Console Create()
+        {
+            return Create("Console");
+        }
+
+        public static Console Create(string resourcesPath)
+        {
+            return Create(Resources.Load<GameObject>(resourcesPath));
+        }
+
+        public static Console Create(GameObject prefab)
         {
             var console = FindObjectOfType<Console>();
             if (console == null)
             {
-                console = Instantiate(Resources.Load<GameObject>("DevConsole")).GetComponent<Console>();
+                console = Instantiate(prefab).GetComponent<Console>();
             }
-            DontDestroyOnLoad(console);
-            console.SetOpen(Environment.CommandLine.EndsWith("-console"));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void Start()
-        {
-            // Probably the safer place to execute commands via script
-            var path = Path.Combine(Application.streamingAssetsPath, "auto_exec.txt");
-            if (File.Exists(path))
-            {
-                var lines = File.ReadAllLines(path);
-                for (int i = 0; i < lines.Length; i++)
-                {
-                    ExecuteCommandString(lines[i]);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void Update()
-        {
-            UpdateInputHistory();
-            if (_scrollToEndCounter > 0)
-            {
-                _scrollToEndCounter--;
-                if (_scrollToEndCounter == 0)
-                {
-                    _scrollbar.value = 0f;
-                }
-            }
+            return console;
         }
 
         public void SetReceiveDebugLogging(bool isRegistered)
@@ -94,12 +67,12 @@ namespace BeardPhantom.UConsole
             Print(string.Format("[{0}] {1}\n{2}", type, condition, stackTrace));
         }
 
-        public virtual void Toggle()
+        public void Toggle()
         {
             SetOpen(!IsOpen);
         }
 
-        public virtual void SetOpen(bool isOpen)
+        public void SetOpen(bool isOpen)
         {
             if (IsOpen == isOpen)
             {
@@ -115,7 +88,7 @@ namespace BeardPhantom.UConsole
             SetInput(string.Empty);
         }
 
-        public DevCommandInfo GetCommand(string alias)
+        public CommandInfo GetCommand(string alias)
         {
             int infoIndex;
             if (CommandMap.TryGetValue(alias, out infoIndex))
@@ -149,13 +122,28 @@ namespace BeardPhantom.UConsole
 
         private void Awake()
         {
+            DontDestroyOnLoad(this);
+            CanvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
             IsOpen = false;
-            _root = transform.GetChild(0) as RectTransform;
-
+            SetOpen(Environment.CommandLine.EndsWith(_settings.CommandLineOpenArg));
             _input.onValueChanged.AddListener(OnInputValueChanged);
             _outputTemplate.gameObject.SetActive(false);
-            CanvasGroup = GetComponent<CanvasGroup>();
-            SetCommands(typeof(DefaultConsoleCommands));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void Update()
+        {
+            UpdateInputHistory();
+            if (_scrollToEndCounter > 0)
+            {
+                _scrollToEndCounter--;
+                if (_scrollToEndCounter == 0)
+                {
+                    _scrollRect.verticalNormalizedPosition = 0f;
+                }
+            }
         }
 
         protected void OnEnable()

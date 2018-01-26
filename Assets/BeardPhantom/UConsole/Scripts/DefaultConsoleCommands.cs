@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace BeardPhantom.UConsole
@@ -22,7 +23,7 @@ namespace BeardPhantom.UConsole
                 for (int i = 0; i < cmds.Count; i++)
                 {
                     var cmd = cmds[i];
-                    output.AppendLine(string.Join(",", cmd.Metadata.Aliases));
+                    output.AppendLine(string.Join(",", cmd.Aliases.ToArray()));
                 }
             }
             else
@@ -30,7 +31,7 @@ namespace BeardPhantom.UConsole
                 var cmd = ConsoleInstance.GetCommand(cmdString);
                 if (cmd != null)
                 {
-                    output.AppendFormat("{0}: {1}", string.Join("/", cmd.Metadata.Aliases), cmd.Metadata.Description);
+                    output.AppendFormat("{0}: {1}", string.Join("/", cmd.Aliases.ToArray()), cmd.Description);
                 }
                 else
                 {

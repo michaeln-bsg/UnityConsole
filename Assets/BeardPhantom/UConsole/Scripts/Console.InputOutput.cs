@@ -95,7 +95,6 @@ namespace BeardPhantom.UConsole
             _input.caretPosition = _input.text.Length;
         }
 
-        ///
         public void ClearOutput()
         {
             var parent = _outputTemplate.transform.parent;

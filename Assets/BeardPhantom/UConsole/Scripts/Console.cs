@@ -23,12 +23,12 @@ namespace BeardPhantom.UConsole
 
         private RectTransform _root;
 
-        private CanvasGroup _canvasGroup;
-
         /// <summary>
         /// 
         /// </summary>
         private byte _scrollToEndCounter;
+
+        public CanvasGroup CanvasGroup { get; private set; }
 
         public bool IsOpen { get; protected set; }
 
@@ -154,7 +154,7 @@ namespace BeardPhantom.UConsole
 
             _input.onValueChanged.AddListener(OnInputValueChanged);
             _outputTemplate.gameObject.SetActive(false);
-            _canvasGroup = GetComponent<CanvasGroup>();
+            CanvasGroup = GetComponent<CanvasGroup>();
             SetCommands(typeof(DefaultConsoleCommands));
         }
 

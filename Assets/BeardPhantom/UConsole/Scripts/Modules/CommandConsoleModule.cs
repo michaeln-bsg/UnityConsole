@@ -3,72 +3,57 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace BeardPhantom.UConsole
+namespace BeardPhantom.UConsole.Modules
 {
-    public partial class Console
+    public class CommandConsoleModule : AbstractConsoleModule
     {
         public readonly Dictionary<string, int> CommandMap = new Dictionary<string, int>();
 
-        public readonly List<CommandInfo> Commands = new List<CommandInfo>();
+        public readonly List<CommandInfo> CommandList = new List<CommandInfo>();
 
         private readonly Dictionary<Type, object> _commandRegistryInstances
             = new Dictionary<Type, object>();
 
-        public void SetCommands(params Type[] types)
-        {
-            CommandMap.Clear();
-            Commands.Clear();
-            _commandRegistryInstances.Clear();
-            var aliasList = new List<string>();
-            foreach (var type in types)
-            {
-                var instance = Activator.CreateInstance(type, (object)this);
-                _commandRegistryInstances.Add(type, instance);
-                var methods = new List<MethodInfo>(type.GetMethods(
-                    BindingFlags.NonPublic
-                    | BindingFlags.Public
-                    | BindingFlags.Static
-                    | BindingFlags.Instance));
+        public CommandConsoleModule(Console console)
+            : base(console) { }
 
-                foreach (var method in methods)
-                {
-                    var cmds = method.GetCustomAttributes(typeof(ConsoleCommandAttribute), false);
-                    if (cmds.Length == 0)
-                    {
-                        continue;
-                    }
-                    var cmd = cmds[0] as ConsoleCommandAttribute;
-                    aliasList.Clear();
-                    aliasList.Add(method.Name);
-                    aliasList.AddRange(cmd.Aliases);
-                    var info = new CommandInfo(method, aliasList.ToArray(), cmd.Description);
-                    Commands.Add(info);
-                    for (var i = 0; i < aliasList.Count; i++)
-                    {
-                        if (!CommandMap.ContainsKey(aliasList[i]))
-                        {
-                            CommandMap.Add(aliasList[i], Commands.Count - 1);
-                        }
-                    }
-                }
-            }
+        public override void Awake()
+        {
+            Console.InputOutput.InputSubmitted += ExecuteCommandString;
+            Console.ConsoleReset += SetCommands;
         }
 
-        protected void ExecuteCommandString(string text)
+        public override void Destroy()
         {
-            PrintInternal("> " + text, _settings.InputEchoColor);
-            _inputHistory.Add(text);
-            _inputHistoryIndex = _inputHistory.Count;
+            Console.ConsoleReset -= SetCommands;
+            Console.InputOutput.InputSubmitted -= ExecuteCommandString;
+        }
+
+        public override void Update() { }
+
+        public CommandInfo GetCommand(string alias)
+        {
+            int infoIndex;
+            if (CommandMap.TryGetValue(alias, out infoIndex))
+            {
+                return CommandList[infoIndex];
+            }
+            return null;
+        }
+
+        public void ExecuteCommandString(string text)
+        {
+            Console.InputOutput.Print("> " + text, Console.Settings.InputEchoColor);
             var parts = text.Split(' ');
             if (parts.Length == 0)
             {
-                PrintErr("COULD NOT PARSE CMD STRING");
+                Console.InputOutput.PrintErr("COULD NOT PARSE CMD STRING");
                 return;
             }
             var cmd = GetCommand(parts[0]);
             if (cmd == null)
             {
-                PrintErr(string.Format("CMD NOT FOUND: '{0}'", parts[0]));
+                Console.InputOutput.PrintErr(string.Format("CMD NOT FOUND: '{0}'", parts[0]));
                 return;
             }
             object[] passedValues = null;
@@ -77,11 +62,11 @@ namespace BeardPhantom.UConsole
                 var paramsPartsLength = parts.Length - 1;
                 if (paramsPartsLength < cmd.RequiredParameters)
                 {
-                    PrintErr("MIN REQUIRED PARAMETERS MISSING");
+                    Console.InputOutput.PrintErr("MIN REQUIRED PARAMETERS MISSING");
                     return;
                 }
                 passedValues = new object[cmd.TotalParameters];
-                for (int i = 0; i < cmd.TotalParameters; i++)
+                for (var i = 0; i < cmd.TotalParameters; i++)
                 {
                     var p = cmd.Parameters[i];
                     /*
@@ -99,7 +84,7 @@ namespace BeardPhantom.UConsole
             var commandRegistryInstance = cmd.Method.IsStatic
                 ? null
                 : _commandRegistryInstances[cmd.Method.DeclaringType];
-            Print(cmd.Method.Invoke(commandRegistryInstance, passedValues));
+            Console.InputOutput.Print(cmd.Method.Invoke(commandRegistryInstance, passedValues));
         }
 
         private string[] ParseCmdString(string input)
@@ -110,7 +95,7 @@ namespace BeardPhantom.UConsole
             var isEscaping = false;
             var c = '\0';
             var lastC = c;
-            for (int i = 0; i < input.Length; i++)
+            for (var i = 0; i < input.Length; i++)
             {
                 lastC = c;
                 c = input[i];
@@ -141,6 +126,46 @@ namespace BeardPhantom.UConsole
             }
             list.Add(builder.ToString().Trim());
             return list.ToArray();
+        }
+
+        private void SetCommands(ConsoleSetupOptions options)
+        {
+            CommandMap.Clear();
+            CommandList.Clear();
+            _commandRegistryInstances.Clear();
+            var aliasList = new List<string>();
+            foreach (var type in options.CommandRegistryTypes)
+            {
+                var instance = Activator.CreateInstance(type, (object)Console);
+                _commandRegistryInstances.Add(type, instance);
+                var methods = new List<MethodInfo>(type.GetMethods(
+                    BindingFlags.NonPublic
+                    | BindingFlags.Public
+                    | BindingFlags.Static
+                    | BindingFlags.Instance));
+
+                foreach (var method in methods)
+                {
+                    var cmds = method.GetCustomAttributes(typeof(ConsoleCommandAttribute), false);
+                    if (cmds.Length == 0)
+                    {
+                        continue;
+                    }
+                    var cmd = cmds[0] as ConsoleCommandAttribute;
+                    aliasList.Clear();
+                    aliasList.Add(method.Name);
+                    aliasList.AddRange(cmd.Aliases);
+                    var info = new CommandInfo(method, aliasList.ToArray(), cmd.Description);
+                    CommandList.Add(info);
+                    for (var i = 0; i < aliasList.Count; i++)
+                    {
+                        if (!CommandMap.ContainsKey(aliasList[i]))
+                        {
+                            CommandMap.Add(aliasList[i], CommandList.Count - 1);
+                        }
+                    }
+                }
+            }
         }
 
         private bool IsQuoteCharacter(char c)

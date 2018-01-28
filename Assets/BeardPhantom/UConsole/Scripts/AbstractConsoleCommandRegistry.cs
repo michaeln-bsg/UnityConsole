@@ -1,10 +1,10 @@
 ﻿namespace BeardPhantom.UConsole
 {
-    public abstract class ConsoleCommandRegistry
+    public abstract class AbstractConsoleCommandRegistry
     {
         protected readonly Console ConsoleInstance;
 
-        public ConsoleCommandRegistry(Console instance)
+        public AbstractConsoleCommandRegistry(Console instance)
         {
             ConsoleInstance = instance;
         }

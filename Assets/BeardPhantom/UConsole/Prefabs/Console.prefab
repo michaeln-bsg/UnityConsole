@@ -178,6 +178,7 @@ GameObject:
   - component: {fileID: 222434293127938720}
   - component: {fileID: 114982589295790656}
   - component: {fileID: 114415102467279320}
+  - component: {fileID: 114345755837174498}
   m_Layer: 5
   m_Name: InputField
   m_TagString: Untagged
@@ -294,11 +295,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _settings: {fileID: 11400000, guid: abfed2d337be07a408facccfcf479bae, type: 2}
+  _inputField: {fileID: 114345755837174498}
   _scrollRect: {fileID: 114152435888982742}
-  _outputTemplate: {fileID: 114437311090118168, guid: b9a4bf5faa6233e4ebf2a91ef5404315,
+  _outputLinePrefab: {fileID: 114649876849847642, guid: b9a4bf5faa6233e4ebf2a91ef5404315,
     type: 2}
-  _input: {fileID: 114415102467279320}
-  _contentRoot: {fileID: 224525229212334846}
+  _consoleRect: {fileID: 224525229212334846}
+--- !u!114 &114345755837174498
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1838561456491244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ade887da58773634aab33123150391ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _inputField: {fileID: 114415102467279320}
 --- !u!114 &114392387866089126
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -374,7 +387,7 @@ MonoBehaviour:
   m_InputType: 0
   m_AsteriskChar: 42
   m_KeyboardType: 0
-  m_LineType: 2
+  m_LineType: 1
   m_HideMobileInput: 0
   m_CharacterValidation: 0
   m_CharacterLimit: 0
@@ -477,7 +490,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 224050793407609182}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999999
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -662,7 +675,7 @@ Canvas:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1795244818536838}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_RenderMode: 0
   m_Camera: {fileID: 0}
@@ -785,7 +798,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000030517578}
+  m_AnchoredPosition: {x: 0, y: 0.000045776367}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224569013344313470

@@ -1,133 +1,155 @@
 ﻿using UnityEngine;
 using System;
 using UnityEngine.UI;
-using System.IO;
+using System.Collections.Generic;
+using BeardPhantom.UConsole.Modules;
 
 namespace BeardPhantom.UConsole
 {
-    public partial class Console : MonoBehaviour
+    public class Console : MonoBehaviour
     {
-        private readonly StringComparer _cmdComparison = StringComparer.OrdinalIgnoreCase;
+        #region Fields
+
+        private readonly Dictionary<Type, AbstractConsoleModule> _customModules
+            = new Dictionary<Type, AbstractConsoleModule>();
+
+        public event Action<ConsoleSetupOptions> ConsoleReset;
 
         [SerializeField]
         private ConsoleSettings _settings;
 
         [SerializeField]
+        private AbstractConsoleInputField _inputField;
+
+        [SerializeField]
         private ScrollRect _scrollRect;
 
         [SerializeField]
-        private Text _outputTemplate;
+        private AbstractConsoleOutputLine _outputLinePrefab;
 
         [SerializeField]
-        private InputField _input;
+        private RectTransform _consoleRect;
 
-        [SerializeField]
-        private RectTransform _contentRoot;
+        private Canvas _canvas;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private byte _scrollToEndCounter;
+        private bool _isOpen;
+
+        #endregion
+
+        #region Properties
+
+        public ConsoleSettings Settings
+        {
+            get
+            {
+                return _settings;
+            }
+        }
+
+        public AbstractConsoleInputField InputField
+        {
+            get
+            {
+                return _inputField;
+            }
+        }
+
+        public ScrollRect ScrollRect
+        {
+            get
+            {
+                return _scrollRect;
+            }
+        }
+
+        public AbstractConsoleOutputLine OutputLinePrefab
+        {
+            get
+            {
+                return _outputLinePrefab;
+            }
+        }
+
+        public InputOutputConsoleModule InputOutput { get; private set; }
+
+        public CommandConsoleModule Commands { get; private set; }
+
+        public InputHistoryConsoleModule InputHistory { get; private set; }
 
         public CanvasGroup CanvasGroup { get; private set; }
 
-        public bool IsOpen { get; protected set; }
-
-        public static Console Create()
+        public bool IsOpen
         {
-            return Create("Console");
-        }
-
-        public static Console Create(string resourcesPath)
-        {
-            return Create(Resources.Load<GameObject>(resourcesPath));
-        }
-
-        public static Console Create(GameObject prefab)
-        {
-            var console = FindObjectOfType<Console>();
-            if (console == null)
+            get
             {
-                console = Instantiate(prefab).GetComponent<Console>();
+                return _isOpen;
             }
-            return console;
-        }
-
-        public void SetReceiveDebugLogging(bool isRegistered)
-        {
-            Application.logMessageReceived -= OnApplicationLogMessageReceived;
-            if (isRegistered)
+            set
             {
-                Application.logMessageReceived += OnApplicationLogMessageReceived;
+                _isOpen = value;
+                _canvas.enabled = value;
+                InputOutput.ClearInput();
+                InputField.IsSelected = true;
             }
         }
 
-        private void OnApplicationLogMessageReceived(string condition, string stackTrace, LogType type)
+        #endregion
+
+        #region Methods
+
+        public T GetModule<T>() where T : AbstractConsoleModule
         {
-            Print(string.Format("[{0}] {1}\n{2}", type, condition, stackTrace));
+            AbstractConsoleModule value;
+            _customModules.TryGetValue(typeof(T), out value);
+            return (T)value;
         }
 
-        public void Toggle()
+        public void Setup(ConsoleSetupOptions options)
         {
-            SetOpen(!IsOpen);
-        }
-
-        public void SetOpen(bool isOpen)
-        {
-            if (IsOpen == isOpen)
+            // Setup modules
+            foreach (var m in _customModules)
             {
-                return;
+                m.Value.Destroy();
             }
-            IsOpen = isOpen;
-            ClearInput();
-            gameObject.SetActive(isOpen);
-        }
+            _customModules.Clear();
 
-        public void ClearInput()
-        {
-            SetInput(string.Empty);
-        }
+            // Add in default modules
+            InputOutput = new InputOutputConsoleModule(this);
+            InputHistory = new InputHistoryConsoleModule(this);
+            Commands = new CommandConsoleModule(this);
 
-        public CommandInfo GetCommand(string alias)
-        {
-            int infoIndex;
-            if (CommandMap.TryGetValue(alias, out infoIndex))
+            AddModule(InputOutput);
+            AddModule(InputHistory);
+            AddModule(Commands);
+
+            foreach (var t in options.ModuleTypes)
             {
-                return Commands[infoIndex];
+                var instance = (AbstractConsoleModule)Activator.CreateInstance(t, (object)this);
+                AddModule(instance);
             }
-            return null;
+
+            if (ConsoleReset != null)
+            {
+                ConsoleReset(options);
+            }
         }
 
-        protected void SubmitInput(string input)
+        private void AddModule(AbstractConsoleModule module)
         {
-            if (string.IsNullOrEmpty(input))
-            {
-                return;
-            }
-            ClearInput();
-            ExecuteCommandString(input);
-        }
-
-        private bool GetInputDown(KeyCode[] input)
-        {
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (Input.GetKeyDown(input[i]))
-                {
-                    return true;
-                }
-            }
-            return false;
+            _customModules.Add(module.GetType(), module);
+            module.Awake();
         }
 
         private void Awake()
         {
             DontDestroyOnLoad(this);
             CanvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
-            IsOpen = false;
-            SetOpen(Environment.CommandLine.EndsWith(_settings.CommandLineOpenArg));
-            _input.onValueChanged.AddListener(OnInputValueChanged);
-            _outputTemplate.gameObject.SetActive(false);
+            _canvas = GetComponent<Canvas>();
+        }
+
+        private void Start()
+        {
+            IsOpen = Environment.CommandLine.EndsWith(_settings.CommandLineOpenArg);
         }
 
         /// <summary>
@@ -135,27 +157,19 @@ namespace BeardPhantom.UConsole
         /// </summary>
         private void Update()
         {
-            UpdateInputHistory();
-            if (_scrollToEndCounter > 0)
+            if (ConsoleUtility.GetInputDown(_settings.InputToggle))
             {
-                _scrollToEndCounter--;
-                if (_scrollToEndCounter == 0)
+                IsOpen = !IsOpen;
+            }
+            if (IsOpen)
+            {
+                foreach (var m in _customModules.Values)
                 {
-                    _scrollRect.verticalNormalizedPosition = 0f;
+                    m.Update();
                 }
             }
         }
 
-        protected void OnEnable()
-        {
-            SetOpen(true);
-            _input.ActivateInputField();
-        }
-
-        protected void OnDisable()
-        {
-            SetOpen(false);
-            _input.DeactivateInputField();
-        }
+        #endregion
     }
 }

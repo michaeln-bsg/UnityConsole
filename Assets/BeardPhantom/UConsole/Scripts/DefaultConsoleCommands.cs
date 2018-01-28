@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace BeardPhantom.UConsole
 {
-    public class DefaultConsoleCommands : ConsoleCommandRegistry
+    public class DefaultConsoleCommands : AbstractConsoleCommandRegistry
     {
         private const string PREFS_KEY_NOT_FOUND = "PREFSKEY NOT FOUND";
 
@@ -13,14 +13,14 @@ namespace BeardPhantom.UConsole
         public DefaultConsoleCommands(Console instance)
             : base(instance) { }
 
-        [ConsoleCommand("Shows help info about a command.", "?", "Cmds")]
+        [ConsoleCommand("Shows help info about a command.", "?", "cmds")]
         private string help(string cmdString = "")
         {
             output.Length = 0;
             if (string.IsNullOrEmpty(cmdString))
             {
-                var cmds = ConsoleInstance.Commands;
-                for (int i = 0; i < cmds.Count; i++)
+                var cmds = ConsoleInstance.Commands.CommandList;
+                for (var i = 0; i < cmds.Count; i++)
                 {
                     var cmd = cmds[i];
                     output.AppendLine(string.Join(",", cmd.Aliases.ToArray()));
@@ -28,7 +28,7 @@ namespace BeardPhantom.UConsole
             }
             else
             {
-                var cmd = ConsoleInstance.GetCommand(cmdString);
+                var cmd = ConsoleInstance.Commands.GetCommand(cmdString);
                 if (cmd != null)
                 {
                     output.AppendFormat("{0}: {1}", string.Join("/", cmd.Aliases.ToArray()), cmd.Description);
@@ -47,7 +47,7 @@ namespace BeardPhantom.UConsole
             ConsoleInstance.CanvasGroup.alpha = Mathf.Clamp(alpha, 0.3f, 1f);
         }
 
-        [ConsoleCommand("Quits the game.", "Quit", "QQQ")]
+        [ConsoleCommand("Quits the game.", "quit", "qqq")]
         private void quit_game()
         {
 #if UNITY_EDITOR
@@ -57,10 +57,10 @@ namespace BeardPhantom.UConsole
 #endif
         }
 
-        [ConsoleCommand("Clears the console.", "CLS")]
+        [ConsoleCommand("Clears the console.", "cls")]
         private void clear()
         {
-            ConsoleInstance.ClearOutput();
+            ConsoleInstance.InputOutput.ClearOutput();
         }
 
         [ConsoleCommand("Does a console print test.")]
@@ -68,7 +68,7 @@ namespace BeardPhantom.UConsole
         {
             const string RNDCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             var stringChars = new char[length];
-            for (int i = 0; i < stringChars.Length; i++)
+            for (var i = 0; i < stringChars.Length; i++)
             {
                 stringChars[i] = RNDCHARS[Random.Range(0, RNDCHARS.Length - 1)];
             }
@@ -129,7 +129,7 @@ namespace BeardPhantom.UConsole
         private void prefs_del_all()
         {
             PlayerPrefs.DeleteAll();
-            ConsoleInstance.Print("PlayerPrefs.DeleteAll Success", Color.green);
+            ConsoleInstance.InputOutput.Print("PlayerPrefs.DeleteAll Success", Color.green);
         }
     }
 }

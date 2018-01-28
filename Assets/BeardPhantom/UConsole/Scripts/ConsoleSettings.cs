@@ -5,7 +5,7 @@ namespace BeardPhantom.UConsole
     [CreateAssetMenu(menuName = "BeardPhantom/UConsole/UConsole Settings")]
     public class ConsoleSettings : ScriptableObject
     {
-        [Header("Invocation")]
+        [Header("General")]
         public bool StartOpen;
 
         public string CommandLineOpenArg = "-console";

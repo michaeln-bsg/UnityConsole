@@ -25,7 +25,7 @@ namespace BeardPhantom.UConsole
             Aliases = aliases;
             Description = description;
             Parameters = method.GetParameters();
-            for (int i = 0; i < Parameters.Length; i++)
+            for (var i = 0; i < Parameters.Length; i++)
             {
                 TotalParameters++;
                 if (Parameters[i].IsOptional)

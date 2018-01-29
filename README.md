@@ -1,5 +1,7 @@
 # UConsole
-Easy-to-use developer console built with UGUI, with easy support for other UI solutions.
+Easy-to-use developer console built with UGUI, with easy support for other UI solutions such as TextMeshPro.
+
+![alt text](https://github.com/thebeardphantom/UConsole/blob/master/img/console_test.gif "Example")
 
 ## Quick-Start Guide
 I strongly encourage devs that use UConsole to take a look at the built-in scripts to get a sense of how custom integration functions. However, here's a few example snippets to get started super fast.

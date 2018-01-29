@@ -4,34 +4,48 @@ using UnityEngine;
 
 namespace BeardPhantom.UConsole.Modules
 {
+    /// <summary>
+    /// Console module for browsing previously executed inputs
+    /// </summary>
     public class InputHistoryConsoleModule : AbstractConsoleModule
     {
+        /// <summary>
+        /// All inputs
+        /// </summary>
         private readonly List<string> _inputHistory = new List<string>();
 
+        /// <summary>
+        /// Current position in input history
+        /// </summary>
         private int _inputHistoryIndex;
 
         public InputHistoryConsoleModule(Console console)
             : base(console) { }
 
-        public override void Awake()
+        /// <inheritdoc />
+        public override void Initialize()
         {
             Console.InputOutput.InputSubmitted += OnInputSubmitted;
         }
 
+        /// <inheritdoc />
         public override void Destroy()
         {
             Console.InputOutput.InputSubmitted -= OnInputSubmitted;
         }
 
+        /// <inheritdoc />
         public override void Update()
         {
             var direction = 0;
-            if (ConsoleUtility.GetInputDown(Console.Settings.InputHistoryUp))
+            if (ConsoleUtility.GetAnyInputDown(Console.Settings.InputHistoryBackwards))
             {
+                // Go backwards
                 direction = -1;
             }
-            else if (ConsoleUtility.GetInputDown(Console.Settings.InputHistoryDown))
+            else if (ConsoleUtility.GetAnyInputDown(Console.Settings.InputHistoryForwards))
             {
+                // Go forwards
                 direction = 1;
             }
 
@@ -49,6 +63,10 @@ namespace BeardPhantom.UConsole.Modules
             }
         }
 
+        /// <summary>
+        /// Add input to history when input field editing ceases
+        /// </summary>
+        /// <param name="text"></param>
         private void OnInputSubmitted(string text)
         {
             _inputHistory.Add(text);

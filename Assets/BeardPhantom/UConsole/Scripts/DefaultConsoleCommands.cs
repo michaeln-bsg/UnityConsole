@@ -4,22 +4,33 @@ using UnityEngine;
 
 namespace BeardPhantom.UConsole
 {
+    /// <summary>
+    /// Provides game agnostic commands
+    /// </summary>
     public class DefaultConsoleCommands : AbstractConsoleCommandRegistry
     {
+        /// <summary>
+        /// Error for when a PlayerPrefs key cannot be found
+        /// </summary>
         private const string PREFS_KEY_NOT_FOUND = "PREFSKEY NOT FOUND";
 
+        /// <summary>
+        /// Used for outputting text and creating less garbage
+        /// </summary>
         private readonly StringBuilder output = new StringBuilder();
 
+        /// <inheritdoc />
         public DefaultConsoleCommands(Console instance)
             : base(instance) { }
 
-        [ConsoleCommand("Shows help info about a command.", "?", "cmds")]
+        [CommandAliases("?", "cmds")]
+        [CommandDescription("Shows help info about a command, or prints all commands")]
         private string help(string cmdString = "")
         {
             output.Length = 0;
             if (string.IsNullOrEmpty(cmdString))
             {
-                var cmds = ConsoleInstance.Commands.CommandList;
+                var cmds = Console.Commands.CommandList;
                 for (var i = 0; i < cmds.Count; i++)
                 {
                     var cmd = cmds[i];
@@ -28,7 +39,7 @@ namespace BeardPhantom.UConsole
             }
             else
             {
-                var cmd = ConsoleInstance.Commands.GetCommand(cmdString);
+                var cmd = Console.Commands.GetCommand(cmdString);
                 if (cmd != null)
                 {
                     output.AppendFormat("{0}: {1}", string.Join("/", cmd.Aliases.ToArray()), cmd.Description);
@@ -41,13 +52,15 @@ namespace BeardPhantom.UConsole
             return output.ToString();
         }
 
-        [ConsoleCommand("Adjusts the console's transparancy", "set_console_alpha", "console_alpha")]
+        [CommandAliases("set_console_alpha", "console_alpha")]
+        [CommandDescription("Adjusts the console's transparancy")]
         private void set_console_transparancy(float alpha)
         {
-            ConsoleInstance.CanvasGroup.alpha = Mathf.Clamp(alpha, 0.3f, 1f);
+            Console.CanvasGroup.alpha = Mathf.Clamp(alpha, 0.3f, 1f);
         }
 
-        [ConsoleCommand("Quits the game.", "quit", "qqq")]
+        [CommandAliases("quit", "qqq")]
+        [CommandDescription("Quits the game.")]
         private void quit_game()
         {
 #if UNITY_EDITOR
@@ -57,13 +70,14 @@ namespace BeardPhantom.UConsole
 #endif
         }
 
-        [ConsoleCommand("Clears the console.", "cls")]
+        [CommandAliases("cls")]
+        [CommandDescription("Clears the console output window.")]
         private void clear()
         {
-            ConsoleInstance.InputOutput.ClearOutput();
+            Console.InputOutput.ClearOutput();
         }
 
-        [ConsoleCommand("Does a console print test.")]
+        [CommandDescription("Performs a console print test.")]
         private string console_test(int length = 1000)
         {
             const string RNDCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -75,13 +89,13 @@ namespace BeardPhantom.UConsole
             return new string(stringChars);
         }
 
-        [ConsoleCommand("Returns a string from PlayerPrefs.")]
+        [CommandDescription("Returns a string from PlayerPrefs.")]
         private string prefs_get(string key)
         {
             return PlayerPrefs.GetString(key, PREFS_KEY_NOT_FOUND);
         }
 
-        [ConsoleCommand("Returns an integer from PlayerPrefs.")]
+        [CommandDescription("Returns an integer from PlayerPrefs.")]
         private string prefs_get_i(string key)
         {
             if (PlayerPrefs.HasKey(key))
@@ -91,7 +105,7 @@ namespace BeardPhantom.UConsole
             return PREFS_KEY_NOT_FOUND;
         }
 
-        [ConsoleCommand("Returns a float from PlayerPrefs.")]
+        [CommandDescription("Returns a float from PlayerPrefs.")]
         private string prefs_get_f(string key)
         {
             if (PlayerPrefs.HasKey(key))
@@ -101,35 +115,35 @@ namespace BeardPhantom.UConsole
             return PREFS_KEY_NOT_FOUND;
         }
 
-        [ConsoleCommand("Sets a string in PlayerPrefs.")]
+        [CommandDescription("Sets a string in PlayerPrefs.")]
         private void prefs_set(string key, string value)
         {
             PlayerPrefs.SetString(key, value);
         }
 
-        [ConsoleCommand("Sets an integer in PlayerPrefs.")]
+        [CommandDescription("Sets an integer in PlayerPrefs.")]
         private void prefs_set_i(string key, int value)
         {
             PlayerPrefs.SetInt(key, value);
         }
 
-        [ConsoleCommand("Sets a float in PlayerPrefs.")]
+        [CommandDescription("Sets a float in PlayerPrefs.")]
         private void prefs_set_f(string key, float value)
         {
             PlayerPrefs.SetFloat(key, value);
         }
 
-        [ConsoleCommand("Removes a value from PlayerPrefs.")]
+        [CommandDescription("Removes a value from PlayerPrefs.")]
         private void prefs_del(string key)
         {
             PlayerPrefs.DeleteKey(key);
         }
 
-        [ConsoleCommand("Removes a value from PlayerPrefs.")]
+        [CommandDescription("Removes a value from PlayerPrefs.")]
         private void prefs_del_all()
         {
             PlayerPrefs.DeleteAll();
-            ConsoleInstance.InputOutput.Print("PlayerPrefs.DeleteAll Success", Color.green);
+            Console.InputOutput.Print("PlayerPrefs.DeleteAll Success", Color.green);
         }
     }
 }

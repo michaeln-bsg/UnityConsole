@@ -5,11 +5,15 @@ using UnityEngine.UI;
 
 namespace BeardPhantom.UConsole
 {
+    /// <summary>
+    /// A wrapper class to provide UConsole UGUI InputField objects
+    /// </summary>
     public class UGUIInputFieldConsoleWrapper : AbstractConsoleInputField
     {
         [SerializeField]
         private InputField _inputField;
 
+        /// <inheritdoc />
         public override string Text
         {
             get
@@ -22,6 +26,7 @@ namespace BeardPhantom.UConsole
             }
         }
 
+        /// <inheritdoc />
         public override int CaretPosition
         {
             get
@@ -34,6 +39,7 @@ namespace BeardPhantom.UConsole
             }
         }
 
+        /// <inheritdoc />
         public override bool IsSelected
         {
             get
@@ -55,24 +61,36 @@ namespace BeardPhantom.UConsole
             }
         }
 
+        /// <inheritdoc />
         public override void AddEndEditListener(UnityAction<string> action)
         {
             _inputField.onEndEdit.AddListener(action);
         }
 
+        /// <inheritdoc />
         public override void RemoveEndEditListener(UnityAction<string> action)
         {
             _inputField.onEndEdit.RemoveListener(action);
         }
 
+        /// <inheritdoc />
         public override void AddOnValueChangedListener(UnityAction<string> action)
         {
             _inputField.onValueChanged.AddListener(action);
         }
 
+        /// <inheritdoc />
         public override void RemoveOnValueChangedListener(UnityAction<string> action)
         {
             _inputField.onValueChanged.RemoveListener(action);
+        }
+
+        /// <summary>
+        /// Look for text component on object when script is added
+        /// </summary>
+        private void Reset()
+        {
+            _inputField = GetComponent<InputField>();
         }
     }
 }

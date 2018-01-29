@@ -3,12 +3,25 @@ using UnityEngine;
 
 namespace BeardPhantom.UConsole
 {
+    /// <summary>
+    /// A simple prefab pool
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class SimplePrefabPool<T> where T : Component
     {
+        /// <summary>
+        /// All live objects
+        /// </summary>
         public readonly List<T> Alive = new List<T>();
 
+        /// <summary>
+        /// Prefab to instantiate
+        /// </summary>
         private readonly GameObject _prefab;
 
+        /// <summary>
+        /// Inactive pooled objects
+        /// </summary>
         private readonly Queue<T> _pool = new Queue<T>();
 
         public SimplePrefabPool(T prefab)
@@ -16,6 +29,9 @@ namespace BeardPhantom.UConsole
             _prefab = prefab.gameObject;
         }
 
+        /// <summary>
+        /// Destroys all live and pooled objects
+        /// </summary>
         public void Clear()
         {
             foreach (var obj in _pool)
@@ -30,6 +46,11 @@ namespace BeardPhantom.UConsole
             Alive.Clear();
         }
 
+        /// <summary>
+        /// Preallocates objects in the pool
+        /// </summary>
+        /// <param name="count"></param>
+        /// <param name="parent"></param>
         public void Allocate(int count, Transform parent)
         {
             for (var i = 0; i < count; i++)
@@ -40,6 +61,11 @@ namespace BeardPhantom.UConsole
             }
         }
 
+        /// <summary>
+        /// Retrieves an instance and parents it to a transform
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <returns></returns>
         public T Retrieve(Transform parent)
         {
             T instance;
@@ -61,6 +87,11 @@ namespace BeardPhantom.UConsole
             return instance;
         }
 
+        /// <summary>
+        /// Instantiates a new instance of the prefab
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <returns></returns>
         private T CreateNew(Transform parent)
         {
             return Object.Instantiate(
@@ -70,6 +101,9 @@ namespace BeardPhantom.UConsole
                 parent).GetComponent<T>();
         }
 
+        /// <summary>
+        /// Returns all live objects
+        /// </summary>
         public void ReturnAll()
         {
             for (var i = Alive.Count - 1; i >= 0; i--)
@@ -78,6 +112,10 @@ namespace BeardPhantom.UConsole
             }
         }
 
+        /// <summary>
+        /// Returns a single live object
+        /// </summary>
+        /// <param name="instance"></param>
         public void Return(T instance)
         {
             Alive.Remove(instance);

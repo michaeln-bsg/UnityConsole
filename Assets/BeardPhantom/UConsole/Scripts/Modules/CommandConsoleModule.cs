@@ -5,33 +5,53 @@ using System.Text;
 
 namespace BeardPhantom.UConsole.Modules
 {
+    /// <summary>
+    /// Built-in module for handling parsing and executing commands
+    /// </summary>
     public class CommandConsoleModule : AbstractConsoleModule
     {
+        /// <summary>
+        /// Name-to-index mapping of commands
+        /// </summary>
         public readonly Dictionary<string, int> CommandMap = new Dictionary<string, int>();
 
-        public readonly List<CommandInfo> CommandList = new List<CommandInfo>();
+        /// <summary>
+        /// Flat list of all command metadata for execution
+        /// </summary>
+        public readonly List<CommandMetadata> CommandList = new List<CommandMetadata>();
 
+        /// <summary>
+        /// Type-to-instance mapping of all command registries
+        /// </summary>
         private readonly Dictionary<Type, object> _commandRegistryInstances
             = new Dictionary<Type, object>();
 
         public CommandConsoleModule(Console console)
             : base(console) { }
 
-        public override void Awake()
+        /// <inheritdoc />
+        public override void Initialize()
         {
             Console.InputOutput.InputSubmitted += ExecuteCommandString;
             Console.ConsoleReset += SetCommands;
         }
 
+        /// <inheritdoc />
         public override void Destroy()
         {
             Console.ConsoleReset -= SetCommands;
             Console.InputOutput.InputSubmitted -= ExecuteCommandString;
         }
 
+        /// <inheritdoc />
         public override void Update() { }
 
-        public CommandInfo GetCommand(string alias)
+        /// <summary>
+        /// Retrieves a command by name
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        public CommandMetadata GetCommand(string alias)
         {
             int infoIndex;
             if (CommandMap.TryGetValue(alias, out infoIndex))
@@ -41,9 +61,13 @@ namespace BeardPhantom.UConsole.Modules
             return null;
         }
 
+        /// <summary>
+        /// Attempts to parse and execute an input string
+        /// </summary>
+        /// <param name="text"></param>
         public void ExecuteCommandString(string text)
         {
-            Console.InputOutput.Print("> " + text, Console.Settings.InputEchoColor);
+            Console.InputOutput.Print("> " + text, Console.Settings.InputEchoPrintColor);
             var parts = text.Split(' ');
             if (parts.Length == 0)
             {
@@ -87,7 +111,12 @@ namespace BeardPhantom.UConsole.Modules
             Console.InputOutput.Print(cmd.Method.Invoke(commandRegistryInstance, passedValues));
         }
 
-        private string[] ParseCmdString(string input)
+        /// <summary>
+        /// Lexer for input string
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        private string[] TokenizeInput(string input)
         {
             var list = new List<string>();
             var inQuotes = false;
@@ -128,6 +157,10 @@ namespace BeardPhantom.UConsole.Modules
             return list.ToArray();
         }
 
+        /// <summary>
+        /// Completely clears and reloads new commands from setup options
+        /// </summary>
+        /// <param name="options"></param>
         private void SetCommands(ConsoleSetupOptions options)
         {
             CommandMap.Clear();
@@ -146,16 +179,26 @@ namespace BeardPhantom.UConsole.Modules
 
                 foreach (var method in methods)
                 {
-                    var cmds = method.GetCustomAttributes(typeof(ConsoleCommandAttribute), false);
-                    if (cmds.Length == 0)
+                    var attributes = method.GetCustomAttributes(typeof(CommandAttribute), false);
+                    if (attributes.Length == 0)
                     {
                         continue;
                     }
-                    var cmd = cmds[0] as ConsoleCommandAttribute;
+                    var description = "NO DESCRIPTION";
                     aliasList.Clear();
                     aliasList.Add(method.Name);
-                    aliasList.AddRange(cmd.Aliases);
-                    var info = new CommandInfo(method, aliasList.ToArray(), cmd.Description);
+                    foreach (var a in attributes)
+                    {
+                        if (a is CommandDescriptionAttribute)
+                        {
+                            description = ((CommandDescriptionAttribute)a).Description;
+                        }
+                        else if (a is CommandAliasesAttribute)
+                        {
+                            aliasList.AddRange(((CommandAliasesAttribute)a).Aliases);
+                        }
+                    }
+                    var info = new CommandMetadata(method, aliasList.ToArray(), description);
                     CommandList.Add(info);
                     for (var i = 0; i < aliasList.Count; i++)
                     {
@@ -168,6 +211,11 @@ namespace BeardPhantom.UConsole.Modules
             }
         }
 
+        /// <summary>
+        /// Whether this character is any quote character
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
         private bool IsQuoteCharacter(char c)
         {
             return c == '\'' || c == '"';

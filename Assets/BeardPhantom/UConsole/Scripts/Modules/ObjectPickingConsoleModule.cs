@@ -1,12 +1,16 @@
-﻿using System.Collections;
+﻿/*
+using System.Collections;
 using UnityEditor;
 using UnityEngine;
 
 namespace BeardPhantom.UConsole.Modules
 {
+    /// <summary>
+    /// Work in progress. Allows object picking without using physics while console is open.
+    /// Think Elder Scrolls console. Commands can be executed on a specific object.
+    /// </summary>
     public class ObjectPickingConsoleModule : AbstractConsoleModule
     {
-        [SerializeField]
         private Shader _replacementShader;
 
         public Vector2 mouse;
@@ -20,7 +24,8 @@ namespace BeardPhantom.UConsole.Modules
         public ObjectPickingConsoleModule(Console console)
             : base(console) { }
 
-        public override void Awake()
+        /// <inheritdoc />
+        public override void Initialize()
         {
             _renderTexture = new RenderTexture(1920, 1080, 16, RenderTextureFormat.ARGB32);
             _renderTexture.filterMode = FilterMode.Point;
@@ -36,8 +41,10 @@ namespace BeardPhantom.UConsole.Modules
             };
         }
 
+        /// <inheritdoc />
         public override void Destroy() { }
 
+        /// <inheritdoc />
         public override void Update()
         {
             var renderers = Object.FindObjectsOfType<Renderer>();
@@ -68,6 +75,10 @@ namespace BeardPhantom.UConsole.Modules
 
         }
 
+        /// <summary>
+        /// Wait to see if the selected pixel is any existing renderer
+        /// </summary>
+        /// <returns></returns>
         private IEnumerator WaitThenCheck()
         {
             yield return new WaitForEndOfFrame();
@@ -103,4 +114,6 @@ namespace BeardPhantom.UConsole.Modules
             }
         }
     }
+
 }
+*/

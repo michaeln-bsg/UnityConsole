@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using BeardPhantom.UConsole.Modules;
+using System.IO;
 using UnityEngine;
 
 namespace BeardPhantom.UConsole.Examples
@@ -27,7 +28,11 @@ namespace BeardPhantom.UConsole.Examples
         private static void AppStart()
         {
             _console = ConsoleUtility.Create(ConsolePrefab);
-            _console.ResetConsole(new ConsoleSetupOptions(new[] { typeof(DefaultConsoleCommands) }));
+            var commandRegistries = new[]
+            {
+                typeof(DefaultConsoleCommands),
+            };
+            _console.ResetConsole(new ConsoleSetupOptions(commandRegistries));
         }
         */
 
@@ -37,7 +42,11 @@ namespace BeardPhantom.UConsole.Examples
         private void Awake()
         {
             _console = ConsoleUtility.Create(ConsolePrefab);
-            _console.ResetConsole(new ConsoleSetupOptions(new[] { typeof(DefaultConsoleCommands) }));
+            var commandRegistries = new[]
+            {
+                typeof(DefaultConsoleCommands),
+            };
+            _console.ResetConsole(new ConsoleSetupOptions(commandRegistries));
         }
 
         /// <summary>

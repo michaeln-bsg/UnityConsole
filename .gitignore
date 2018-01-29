@@ -30,5 +30,7 @@ NoCommit.meta
 !.gitignore
 !ProjectSettings/
 !Assets/
+!Attribution
+!img/
 !LICENSE
 !README.md

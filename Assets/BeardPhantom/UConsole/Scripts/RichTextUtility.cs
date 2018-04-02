@@ -12,7 +12,10 @@ namespace BeardPhantom.UConsole
         /// </summary>
         public static string MakeColored(this string s, Color c)
         {
-            return string.Format("<color=#{0}>{1}</color>", ColorUtility.ToHtmlStringRGBA(c), s);
+            return string.Format(
+                "<color=#{0}>{1}</color>",
+                ColorUtility.ToHtmlStringRGBA(c),
+                s);
         }
 
         /// <summary>

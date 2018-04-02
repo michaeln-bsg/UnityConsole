@@ -8,33 +8,20 @@ namespace BeardPhantom.UConsole
     /// </summary>
     public class UGUIOutputLineWrapper : AbstractConsoleOutputLine
     {
-        [SerializeField]
-        private Text _text;
+        [SerializeField] private Text _text;
 
         /// <inheritdoc />
         public override string Text
         {
-            get
-            {
-                return _text.text;
-            }
-            set
-            {
-                _text.text = value;
-            }
+            get { return _text.text; }
+            set { _text.text = value; }
         }
 
         /// <inheritdoc />
         public override Color Color
         {
-            get
-            {
-                return _text.color;
-            }
-            set
-            {
-                _text.color = value;
-            }
+            get { return _text.color; }
+            set { _text.color = value; }
         }
 
         /// <summary>

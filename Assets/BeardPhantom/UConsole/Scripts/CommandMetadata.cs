@@ -43,16 +43,21 @@ namespace BeardPhantom.UConsole
         /// </summary>
         public readonly int TotalParameters;
 
-        public CommandMetadata(MethodInfo method, IList<string> aliases, string description)
+        public CommandMetadata(
+            MethodInfo method,
+            IList<string> aliases,
+            string description)
         {
             Method = method;
             Aliases = aliases;
             Description = description;
             Parameters = method.GetParameters();
-            for (var i = 0; i < Parameters.Length; i++)
+
+            for(var i = 0; i < Parameters.Length; i++)
             {
                 TotalParameters++;
-                if (Parameters[i].IsOptional)
+
+                if(Parameters[i].IsOptional)
                 {
                     OptionalParameters++;
                 }

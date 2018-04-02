@@ -1,5 +1,4 @@
-﻿using BeardPhantom.UConsole.Modules;
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
 
 namespace BeardPhantom.UConsole.Examples
@@ -42,10 +41,12 @@ namespace BeardPhantom.UConsole.Examples
         private void Awake()
         {
             _console = ConsoleUtility.Create(ConsolePrefab);
+
             var commandRegistries = new[]
             {
-                typeof(DefaultConsoleCommands),
+                typeof(DefaultConsoleCommands)
             };
+
             _console.ResetConsole(new ConsoleSetupOptions(commandRegistries));
         }
 
@@ -54,11 +55,15 @@ namespace BeardPhantom.UConsole.Examples
         /// </summary>
         private void Start()
         {
-            var path = Path.Combine(Application.streamingAssetsPath, "auto_exec.txt");
-            if (File.Exists(path))
+            var path = Path.Combine(
+                Application.streamingAssetsPath,
+                "auto_exec.txt");
+
+            if(File.Exists(path))
             {
                 var lines = File.ReadAllLines(path);
-                for (var i = 0; i < lines.Length; i++)
+
+                for(var i = 0; i < lines.Length; i++)
                 {
                     _console.Commands.ExecuteCommandString(lines[i]);
                 }

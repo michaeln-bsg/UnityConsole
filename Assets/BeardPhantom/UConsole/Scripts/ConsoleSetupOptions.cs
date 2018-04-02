@@ -17,7 +17,9 @@ namespace BeardPhantom.UConsole
         /// </summary>
         public readonly Type[] ModuleTypes = new Type[0];
 
-        public ConsoleSetupOptions(Type[] commandRegistryTypes = null, Type[] moduleTypes = null)
+        public ConsoleSetupOptions(
+            Type[] commandRegistryTypes = null,
+            Type[] moduleTypes = null)
         {
             CommandRegistryTypes = commandRegistryTypes ?? new Type[0];
             ModuleTypes = moduleTypes ?? new Type[0];

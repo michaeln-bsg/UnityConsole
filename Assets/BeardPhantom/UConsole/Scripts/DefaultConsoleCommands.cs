@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Text;
+using UnityEditor;
 using UnityEngine;
 
 namespace BeardPhantom.UConsole
@@ -24,14 +25,17 @@ namespace BeardPhantom.UConsole
             : base(instance) { }
 
         [CommandAliases("?", "cmds")]
-        [CommandDescription("Shows help info about a command, or prints all commands")]
+        [CommandDescription(
+            "Shows help info about a command, or prints all commands")]
         private string help(string cmdString = "")
         {
             output.Length = 0;
-            if (string.IsNullOrEmpty(cmdString))
+
+            if(string.IsNullOrEmpty(cmdString))
             {
                 var cmds = Console.Commands.CommandList;
-                for (var i = 0; i < cmds.Count; i++)
+
+                for(var i = 0; i < cmds.Count; i++)
                 {
                     var cmd = cmds[i];
                     output.AppendLine(string.Join(",", cmd.Aliases.ToArray()));
@@ -40,15 +44,20 @@ namespace BeardPhantom.UConsole
             else
             {
                 var cmd = Console.Commands.GetCommand(cmdString);
-                if (cmd != null)
+
+                if(cmd != null)
                 {
-                    output.AppendFormat("{0}: {1}", string.Join("/", cmd.Aliases.ToArray()), cmd.Description);
+                    output.AppendFormat(
+                        "{0}: {1}",
+                        string.Join("/", cmd.Aliases.ToArray()),
+                        cmd.Description);
                 }
                 else
                 {
                     output.AppendFormat("COMMAND NOT FOUND: {0}", cmdString);
                 }
             }
+
             return output.ToString();
         }
 
@@ -63,11 +72,11 @@ namespace BeardPhantom.UConsole
         [CommandDescription("Quits the game.")]
         private void quit_game()
         {
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
+            #if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+            #else
 		    Application.Quit();
-#endif
+                        #endif
         }
 
         [CommandAliases("cls")]
@@ -80,12 +89,16 @@ namespace BeardPhantom.UConsole
         [CommandDescription("Performs a console print test.")]
         private string console_test(int length = 1000)
         {
-            const string RNDCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            const string RNDCHARS =
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
             var stringChars = new char[length];
-            for (var i = 0; i < stringChars.Length; i++)
+
+            for(var i = 0; i < stringChars.Length; i++)
             {
                 stringChars[i] = RNDCHARS[Random.Range(0, RNDCHARS.Length - 1)];
             }
+
             return new string(stringChars);
         }
 
@@ -98,20 +111,22 @@ namespace BeardPhantom.UConsole
         [CommandDescription("Returns an integer from PlayerPrefs.")]
         private string prefs_get_i(string key)
         {
-            if (PlayerPrefs.HasKey(key))
+            if(PlayerPrefs.HasKey(key))
             {
                 return PlayerPrefs.GetInt(key).ToString();
             }
+
             return PREFS_KEY_NOT_FOUND;
         }
 
         [CommandDescription("Returns a float from PlayerPrefs.")]
         private string prefs_get_f(string key)
         {
-            if (PlayerPrefs.HasKey(key))
+            if(PlayerPrefs.HasKey(key))
             {
                 return PlayerPrefs.GetFloat(key).ToString();
             }
+
             return PREFS_KEY_NOT_FOUND;
         }
 
@@ -143,7 +158,10 @@ namespace BeardPhantom.UConsole
         private void prefs_del_all()
         {
             PlayerPrefs.DeleteAll();
-            Console.InputOutput.Print("PlayerPrefs.DeleteAll Success", Color.green);
+
+            Console.InputOutput.Print(
+                "PlayerPrefs.DeleteAll Success",
+                Color.green);
         }
     }
 }

@@ -3,7 +3,7 @@
 namespace BeardPhantom.UConsole
 {
     /// <summary>
-    /// Behavior and visuals settings for a console 
+    /// Behavior and visuals settings for a console
     /// </summary>
     [CreateAssetMenu(menuName = "BeardPhantom/UConsole/UConsole Settings")]
     public class ConsoleSettings : ScriptableObject
@@ -11,8 +11,7 @@ namespace BeardPhantom.UConsole
         /// <summary>
         /// Does the console start open when created
         /// </summary>
-        [Header("General")]
-        public bool StartOpen;
+        [Header("General")] public bool StartOpen;
 
         /// <summary>
         /// Checked at console create time to see if the application command line arguments contain
@@ -23,8 +22,7 @@ namespace BeardPhantom.UConsole
         /// <summary>
         /// Color used for default print
         /// </summary>
-        [Header("Colors")]
-        public Color DefaultPrintColor = Color.white;
+        [Header("Colors")] public Color DefaultPrintColor = Color.white;
 
         /// <summary>
         /// Color used when showing echo of submitted input
@@ -44,22 +42,34 @@ namespace BeardPhantom.UConsole
         /// <summary>
         /// Input checked for opening/closing the console
         /// </summary>
-        [Header("Input")]
-        public KeyCode[] ToggleConsole = new KeyCode[] { KeyCode.BackQuote };
+        [Header("Input")] public KeyCode[] ToggleConsole =
+        {
+            KeyCode.BackQuote
+        };
 
         /// <summary>
         /// Input checked for navigating backwards in the console input history
         /// </summary>
-        public KeyCode[] InputHistoryBackwards = new KeyCode[] { KeyCode.UpArrow };
+        public KeyCode[] InputHistoryBackwards =
+        {
+            KeyCode.UpArrow
+        };
 
         /// <summary>
         /// Input checked for navigating forwads in the console input history
         /// </summary>
-        public KeyCode[] InputHistoryForwards = new KeyCode[] { KeyCode.DownArrow };
+        public KeyCode[] InputHistoryForwards =
+        {
+            KeyCode.DownArrow
+        };
 
         /// <summary>
         /// Input checked for submitting input to the console
         /// </summary>
-        public KeyCode[] SubmitInput = new KeyCode[] { KeyCode.Return, KeyCode.KeypadEnter };
+        public KeyCode[] SubmitInput =
+        {
+            KeyCode.Return,
+            KeyCode.KeypadEnter
+        };
     }
 }

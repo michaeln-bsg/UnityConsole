@@ -35,10 +35,12 @@ namespace BeardPhantom.UConsole
         public static Console Create(GameObject prefab)
         {
             var console = Object.FindObjectOfType<Console>();
-            if (console == null)
+
+            if(console == null)
             {
                 console = Object.Instantiate(prefab).GetComponent<Console>();
             }
+
             return console;
         }
 
@@ -49,13 +51,14 @@ namespace BeardPhantom.UConsole
         /// <returns></returns>
         public static bool GetAnyInputDown(KeyCode[] input)
         {
-            for (var i = 0; i < input.Length; i++)
+            for(var i = 0; i < input.Length; i++)
             {
-                if (Input.GetKeyDown(input[i]))
+                if(Input.GetKeyDown(input[i]))
                 {
                     return true;
                 }
             }
+
             return false;
         }
     }

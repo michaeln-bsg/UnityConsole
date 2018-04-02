@@ -36,11 +36,13 @@ namespace BeardPhantom.UConsole
         /// <summary>
         /// Adds a callback for when the input field's value changes
         /// </summary>
-        public abstract void AddOnValueChangedListener(UnityAction<string> action);
+        public abstract void AddOnValueChangedListener(
+            UnityAction<string> action);
 
         /// <summary>
         /// Removes a callback for when the input field's value changes
         /// </summary>
-        public abstract void RemoveOnValueChangedListener(UnityAction<string> action);
+        public abstract void RemoveOnValueChangedListener(
+            UnityAction<string> action);
     }
 }

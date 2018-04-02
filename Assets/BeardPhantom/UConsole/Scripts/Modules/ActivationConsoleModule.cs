@@ -36,7 +36,7 @@ namespace BeardPhantom.UConsole.Modules
         /// <param name="isOpen"></param>
         private void OnConsoleToggled(bool isOpen)
         {
-            if (isOpen)
+            if(isOpen)
             {
                 _cachedTimescale = Time.timeScale;
                 Time.timeScale = 0f;

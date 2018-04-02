@@ -1,8 +1,8 @@
-﻿using UnityEngine;
-using System;
-using UnityEngine.UI;
+﻿using System;
 using System.Collections.Generic;
 using BeardPhantom.UConsole.Modules;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeardPhantom.UConsole
 {
@@ -32,32 +32,27 @@ namespace BeardPhantom.UConsole
         /// <summary>
         /// Behavior and visual settings used by this console instance
         /// </summary>
-        [SerializeField]
-        private ConsoleSettings _settings;
+        [SerializeField] private ConsoleSettings _settings;
 
         /// <summary>
         /// Input field
         /// </summary>
-        [SerializeField]
-        private AbstractConsoleInputField _inputField;
+        [SerializeField] private AbstractConsoleInputField _inputField;
 
         /// <summary>
         /// Output window scroll rect
         /// </summary>
-        [SerializeField]
-        private ScrollRect _scrollRect;
+        [SerializeField] private ScrollRect _scrollRect;
 
         /// <summary>
         /// Output line prefab for showing output
         /// </summary>
-        [SerializeField]
-        private AbstractConsoleOutputLine _outputLinePrefab;
+        [SerializeField] private AbstractConsoleOutputLine _outputLinePrefab;
 
         /// <summary>
         /// The main container RectTransform for the console
         /// </summary>
-        [SerializeField]
-        private RectTransform _consoleRect;
+        [SerializeField] private RectTransform _consoleRect;
 
         /// <summary>
         /// Whether the console is currently opened
@@ -73,10 +68,7 @@ namespace BeardPhantom.UConsole
         /// </summary>
         public ConsoleSettings Settings
         {
-            get
-            {
-                return _settings;
-            }
+            get { return _settings; }
         }
 
         /// <summary>
@@ -84,10 +76,7 @@ namespace BeardPhantom.UConsole
         /// </summary>
         public AbstractConsoleInputField InputField
         {
-            get
-            {
-                return _inputField;
-            }
+            get { return _inputField; }
         }
 
         /// <summary>
@@ -95,10 +84,7 @@ namespace BeardPhantom.UConsole
         /// </summary>
         public ScrollRect ScrollRect
         {
-            get
-            {
-                return _scrollRect;
-            }
+            get { return _scrollRect; }
         }
 
         /// <summary>
@@ -106,10 +92,7 @@ namespace BeardPhantom.UConsole
         /// </summary>
         public AbstractConsoleOutputLine OutputLinePrefab
         {
-            get
-            {
-                return _outputLinePrefab;
-            }
+            get { return _outputLinePrefab; }
         }
 
         /// <summary>
@@ -137,10 +120,7 @@ namespace BeardPhantom.UConsole
         /// </summary>
         public bool IsOpen
         {
-            get
-            {
-                return _isOpen;
-            }
+            get { return _isOpen; }
             set
             {
                 _isOpen = value;
@@ -148,7 +128,8 @@ namespace BeardPhantom.UConsole
                 CanvasGroup.blocksRaycasts = value;
                 InputOutput.ClearInput();
                 InputField.IsSelected = true;
-                if (ConsoleToggled != null)
+
+                if(ConsoleToggled != null)
                 {
                     ConsoleToggled(_isOpen);
                 }
@@ -168,7 +149,8 @@ namespace BeardPhantom.UConsole
         {
             AbstractConsoleModule value;
             _customModules.TryGetValue(typeof(T), out value);
-            return (T)value;
+
+            return (T) value;
         }
 
         /// <summary>
@@ -178,10 +160,11 @@ namespace BeardPhantom.UConsole
         public void ResetConsole(ConsoleSetupOptions options)
         {
             // Setup modules
-            foreach (var m in _customModules)
+            foreach(var m in _customModules)
             {
                 m.Value.Destroy();
             }
+
             _customModules.Clear();
 
             // Add in default modules
@@ -193,13 +176,17 @@ namespace BeardPhantom.UConsole
             AddModule(InputHistory);
             AddModule(Commands);
 
-            foreach (var t in options.ModuleTypes)
+            foreach(var t in options.ModuleTypes)
             {
-                var instance = (AbstractConsoleModule)Activator.CreateInstance(t, (object)this);
+                var instance =
+                    (AbstractConsoleModule) Activator.CreateInstance(
+                        t,
+                        (object) this);
+
                 AddModule(instance);
             }
 
-            if (ConsoleReset != null)
+            if(ConsoleReset != null)
             {
                 ConsoleReset(options);
             }
@@ -219,7 +206,9 @@ namespace BeardPhantom.UConsole
         private void Awake()
         {
             DontDestroyOnLoad(this);
-            CanvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+
+            CanvasGroup = GetComponent<CanvasGroup>()
+                          ?? gameObject.AddComponent<CanvasGroup>();
         }
 
         /// <summary>
@@ -228,8 +217,9 @@ namespace BeardPhantom.UConsole
         private void Start()
         {
             IsOpen = _settings.StartOpen
-                || (!string.IsNullOrEmpty(_settings.CommandLineOpenArg)
-                    && Environment.CommandLine.EndsWith(_settings.CommandLineOpenArg));
+                     || !string.IsNullOrEmpty(_settings.CommandLineOpenArg)
+                     && Environment.CommandLine.EndsWith(
+                         _settings.CommandLineOpenArg);
         }
 
         /// <summary>
@@ -237,13 +227,14 @@ namespace BeardPhantom.UConsole
         /// </summary>
         private void Update()
         {
-            if (ConsoleUtility.GetAnyInputDown(_settings.ToggleConsole))
+            if(ConsoleUtility.GetAnyInputDown(_settings.ToggleConsole))
             {
                 IsOpen = !IsOpen;
             }
-            if (IsOpen)
+
+            if(IsOpen)
             {
-                foreach (var m in _customModules.Values)
+                foreach(var m in _customModules.Values)
                 {
                     m.Update();
                 }

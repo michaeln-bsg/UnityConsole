@@ -10,33 +10,20 @@ namespace BeardPhantom.UConsole
     /// </summary>
     public class UGUIInputFieldConsoleWrapper : AbstractConsoleInputField
     {
-        [SerializeField]
-        private InputField _inputField;
+        [SerializeField] private InputField _inputField;
 
         /// <inheritdoc />
         public override string Text
         {
-            get
-            {
-                return _inputField.text;
-            }
-            set
-            {
-                _inputField.text = value;
-            }
+            get { return _inputField.text; }
+            set { _inputField.text = value; }
         }
 
         /// <inheritdoc />
         public override int CaretPosition
         {
-            get
-            {
-                return _inputField.caretPosition;
-            }
-            set
-            {
-                _inputField.caretPosition = value;
-            }
+            get { return _inputField.caretPosition; }
+            set { _inputField.caretPosition = value; }
         }
 
         /// <inheritdoc />
@@ -44,16 +31,19 @@ namespace BeardPhantom.UConsole
         {
             get
             {
-                return EventSystem.current.currentSelectedGameObject == _inputField.gameObject;
+                return EventSystem.current.currentSelectedGameObject
+                       == _inputField.gameObject;
             }
             set
             {
-                if (value)
+                if(value)
                 {
                     _inputField.Select();
                     _inputField.ActivateInputField();
                 }
-                else if (!value && EventSystem.current.currentSelectedGameObject == _inputField.gameObject)
+                else if(!value
+                        && EventSystem.current.currentSelectedGameObject
+                        == _inputField.gameObject)
                 {
                     _inputField.DeactivateInputField();
                     EventSystem.current.SetSelectedGameObject(null);
@@ -74,13 +64,15 @@ namespace BeardPhantom.UConsole
         }
 
         /// <inheritdoc />
-        public override void AddOnValueChangedListener(UnityAction<string> action)
+        public override void AddOnValueChangedListener(
+            UnityAction<string> action)
         {
             _inputField.onValueChanged.AddListener(action);
         }
 
         /// <inheritdoc />
-        public override void RemoveOnValueChangedListener(UnityAction<string> action)
+        public override void RemoveOnValueChangedListener(
+            UnityAction<string> action)
         {
             _inputField.onValueChanged.RemoveListener(action);
         }

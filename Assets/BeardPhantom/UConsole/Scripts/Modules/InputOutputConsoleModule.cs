@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace BeardPhantom.UConsole.Modules
@@ -10,6 +9,9 @@ namespace BeardPhantom.UConsole.Modules
     /// </summary>
     public class InputOutputConsoleModule : AbstractConsoleModule
     {
+        public InputOutputConsoleModule(Console console)
+            : base(console) { }
+
         #region Fields
 
         /// <summary>
@@ -29,15 +31,15 @@ namespace BeardPhantom.UConsole.Modules
 
         #endregion
 
-        public InputOutputConsoleModule(Console console)
-            : base(console) { }
-
         #region Methods
 
         /// <inheritdoc />
         public override void Initialize()
         {
-            _linePool = new SimplePrefabPool<AbstractConsoleOutputLine>(Console.OutputLinePrefab);
+            _linePool =
+                new SimplePrefabPool<AbstractConsoleOutputLine>(
+                    Console.OutputLinePrefab);
+
             _linePool.Allocate(100, Console.ScrollRect.content);
             Console.InputField.AddEndEditListener(SubmitInput);
         }
@@ -53,10 +55,11 @@ namespace BeardPhantom.UConsole.Modules
         /// <inheritdoc />
         public override void Update()
         {
-            if (_scrollToEndCounter > 0)
+            if(_scrollToEndCounter > 0)
             {
                 _scrollToEndCounter--;
-                if (_scrollToEndCounter == 0)
+
+                if(_scrollToEndCounter == 0)
                 {
                     Console.ScrollRect.verticalNormalizedPosition = 0f;
                 }
@@ -124,7 +127,7 @@ namespace BeardPhantom.UConsole.Modules
         /// <param name="color"></param>
         public void Print(object output, Color color)
         {
-            if (output != null)
+            if(output != null)
             {
                 PrintInternal(output.ToString(), color);
             }
@@ -137,7 +140,7 @@ namespace BeardPhantom.UConsole.Modules
         /// <param name="color"></param>
         public void Print(string output, Color color)
         {
-            if (!string.IsNullOrEmpty(output))
+            if(!string.IsNullOrEmpty(output))
             {
                 PrintInternal(output, color);
             }
@@ -151,15 +154,17 @@ namespace BeardPhantom.UConsole.Modules
         public void SetReceiveDebugLogging(bool isRegistered)
         {
             Application.logMessageReceived -= OnApplicationLogMessageReceived;
-            if (isRegistered)
+
+            if(isRegistered)
             {
-                Application.logMessageReceived += OnApplicationLogMessageReceived;
+                Application.logMessageReceived +=
+                    OnApplicationLogMessageReceived;
             }
         }
 
         public void SubmitInput(string input)
         {
-            if (input != null && !IsWhitespaceString(input))
+            if(input != null && !IsWhitespaceString(input))
             {
                 Console.StartCoroutine(DelayTrySubmit(input));
             }
@@ -175,13 +180,16 @@ namespace BeardPhantom.UConsole.Modules
         private IEnumerator DelayTrySubmit(string input)
         {
             yield return null;
-            if (Console.InputField.IsSelected)
+
+            if(Console.InputField.IsSelected)
             {
                 ClearInput();
-                if (InputSubmitted != null)
+
+                if(InputSubmitted != null)
                 {
                     InputSubmitted(input);
                 }
+
                 Console.InputField.IsSelected = true;
             }
         }
@@ -218,7 +226,10 @@ namespace BeardPhantom.UConsole.Modules
         /// <param name="condition"></param>
         /// <param name="stackTrace"></param>
         /// <param name="type"></param>
-        private void OnApplicationLogMessageReceived(string condition, string stackTrace, LogType type)
+        private void OnApplicationLogMessageReceived(
+            string condition,
+            string stackTrace,
+            LogType type)
         {
             Print(string.Format("[{0}] {1}\n{2}", type, condition, stackTrace));
         }
@@ -230,13 +241,14 @@ namespace BeardPhantom.UConsole.Modules
         /// <returns></returns>
         private bool IsWhitespaceString(string input)
         {
-            for (var i =0; i < input.Length; i++)
+            for(var i = 0; i < input.Length; i++)
             {
-                if (!char.IsWhiteSpace(input[i]))
+                if(!char.IsWhiteSpace(input[i]))
                 {
                     return false;
                 }
             }
+
             return true;
         }
 

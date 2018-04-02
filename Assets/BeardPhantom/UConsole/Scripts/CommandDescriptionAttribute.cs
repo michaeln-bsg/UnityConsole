@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BeardPhantom.UConsole
+﻿namespace BeardPhantom.UConsole
 {
     /// <summary>
     /// Defines the help documentation for a command

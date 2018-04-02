@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace BeardPhantom.UConsole.Modules
@@ -38,27 +37,31 @@ namespace BeardPhantom.UConsole.Modules
         public override void Update()
         {
             var direction = 0;
-            if (ConsoleUtility.GetAnyInputDown(Console.Settings.InputHistoryBackwards))
+
+            if(ConsoleUtility.GetAnyInputDown(
+                Console.Settings.InputHistoryBackwards))
             {
                 // Go backwards
                 direction = -1;
             }
-            else if (ConsoleUtility.GetAnyInputDown(Console.Settings.InputHistoryForwards))
+            else if(ConsoleUtility.GetAnyInputDown(
+                Console.Settings.InputHistoryForwards))
             {
                 // Go forwards
                 direction = 1;
             }
 
-            if (direction != 0)
+            if(direction != 0)
             {
                 _inputHistoryIndex = Mathf.Clamp(
                     _inputHistoryIndex + direction,
                     0,
                     Mathf.Max(0, _inputHistory.Count - 1));
 
-                if (_inputHistory.Count > 0)
+                if(_inputHistory.Count > 0)
                 {
-                    Console.InputOutput.SetInput(_inputHistory[_inputHistoryIndex]);
+                    Console.InputOutput.SetInput(
+                        _inputHistory[_inputHistoryIndex]);
                 }
             }
         }

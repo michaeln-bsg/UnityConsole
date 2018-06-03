@@ -8,20 +8,18 @@ namespace BeardPhantom.UConsole
     public class ConsoleSetupOptions
     {
         /// <summary>
-        /// The command registries to be registered to the console
+        /// Whether default commands should be registered
         /// </summary>
-        public readonly Type[] CommandRegistryTypes = new Type[0];
+        public readonly bool AddDefaultCommands;
 
         /// <summary>
         /// The module types to be created for the console
         /// </summary>
-        public readonly Type[] ModuleTypes = new Type[0];
+        public readonly Type[] ModuleTypes;
 
-        public ConsoleSetupOptions(
-            Type[] commandRegistryTypes = null,
-            Type[] moduleTypes = null)
+        public ConsoleSetupOptions(bool addDefaultCommands, params Type[] moduleTypes)
         {
-            CommandRegistryTypes = commandRegistryTypes ?? new Type[0];
+            AddDefaultCommands = addDefaultCommands;
             ModuleTypes = moduleTypes ?? new Type[0];
         }
     }

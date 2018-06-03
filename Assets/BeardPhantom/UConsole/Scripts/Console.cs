@@ -32,27 +32,32 @@ namespace BeardPhantom.UConsole
         /// <summary>
         /// Behavior and visual settings used by this console instance
         /// </summary>
-        [SerializeField] private ConsoleSettings _settings;
+        [SerializeField]
+        private ConsoleSettings _settings;
 
         /// <summary>
         /// Input field
         /// </summary>
-        [SerializeField] private AbstractConsoleInputField _inputField;
+        [SerializeField]
+        private AbstractConsoleInputField _inputField;
 
         /// <summary>
         /// Output window scroll rect
         /// </summary>
-        [SerializeField] private ScrollRect _scrollRect;
+        [SerializeField]
+        private ScrollRect _scrollRect;
 
         /// <summary>
         /// Output line prefab for showing output
         /// </summary>
-        [SerializeField] private AbstractConsoleOutputLine _outputLinePrefab;
+        [SerializeField]
+        private AbstractConsoleOutputLine _outputLinePrefab;
 
         /// <summary>
         /// The main container RectTransform for the console
         /// </summary>
-        [SerializeField] private RectTransform _consoleRect;
+        [SerializeField]
+        private RectTransform _consoleRect;
 
         /// <summary>
         /// Whether the console is currently opened
@@ -202,13 +207,11 @@ namespace BeardPhantom.UConsole
             module.Initialize();
         }
 
-        /// <inheritdoc />
         private void Awake()
         {
             DontDestroyOnLoad(this);
 
-            CanvasGroup = GetComponent<CanvasGroup>()
-                          ?? gameObject.AddComponent<CanvasGroup>();
+            CanvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
         }
 
         /// <summary>
@@ -217,9 +220,9 @@ namespace BeardPhantom.UConsole
         private void Start()
         {
             IsOpen = _settings.StartOpen
-                     || !string.IsNullOrEmpty(_settings.CommandLineOpenArg)
-                     && Environment.CommandLine.EndsWith(
-                         _settings.CommandLineOpenArg);
+                || !string.IsNullOrEmpty(_settings.CommandLineOpenArg)
+                && Environment.CommandLine.EndsWith(
+                    _settings.CommandLineOpenArg);
         }
 
         /// <summary>

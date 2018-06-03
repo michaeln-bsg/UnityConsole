@@ -18,22 +18,20 @@ namespace BeardPhantom.UConsole.Examples
         /// </summary>
         private Console _console;
 
-        /*
-        /// <summary>
-        /// Most likely you want to create your console immediately when your application starts instead
-        /// of using Awake.
-        /// </summary>
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void AppStart()
-        {
-            _console = ConsoleUtility.Create(ConsolePrefab);
-            var commandRegistries = new[]
-            {
-                typeof(DefaultConsoleCommands),
-            };
-            _console.ResetConsole(new ConsoleSetupOptions(commandRegistries));
-        }
-        */
+        ///// <summary>
+        ///// Most likely you want to create your console immediately when your application starts instead
+        ///// of using Awake.
+        ///// </summary>
+        //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        //private static void AppStart()
+        //{
+        //    _console = ConsoleUtility.Create(ConsolePrefab);
+        //    var commandRegistries = new[]
+        //    {
+        //        typeof(DefaultConsoleCommands),
+        //    };
+        //    _console.ResetConsole(new ConsoleSetupOptions(true));
+        //}
 
         /// <summary>
         /// Create and setup commands
@@ -41,13 +39,7 @@ namespace BeardPhantom.UConsole.Examples
         private void Awake()
         {
             _console = ConsoleUtility.Create(ConsolePrefab);
-
-            var commandRegistries = new[]
-            {
-                typeof(DefaultConsoleCommands)
-            };
-
-            _console.ResetConsole(new ConsoleSetupOptions(commandRegistries));
+            _console.ResetConsole(new ConsoleSetupOptions(true));
         }
 
         /// <summary>

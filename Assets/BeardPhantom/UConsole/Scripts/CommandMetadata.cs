@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace BeardPhantom.UConsole
@@ -21,7 +23,7 @@ namespace BeardPhantom.UConsole
         /// <summary>
         /// All names this command can be invoked by
         /// </summary>
-        public readonly IList<string> Aliases;
+        public readonly string[] Aliases;
 
         /// <summary>
         /// Help documentation for this command
@@ -29,9 +31,9 @@ namespace BeardPhantom.UConsole
         public readonly string Description;
 
         /// <summary>
-        /// Count of optional parameters
+        /// Total parameter count
         /// </summary>
-        public readonly int OptionalParameters;
+        public readonly int TotalParameters;
 
         /// <summary>
         /// Count of required parameters
@@ -39,31 +41,57 @@ namespace BeardPhantom.UConsole
         public readonly int RequiredParameters;
 
         /// <summary>
+        /// Count of optional parameters
+        /// </summary>
+        public readonly int OptionalParameters;
+
+        /// <summary>
         /// Total parameter count
         /// </summary>
-        public readonly int TotalParameters;
+        public readonly int TotalProvidableParameters;
 
-        public CommandMetadata(
-            MethodInfo method,
-            IList<string> aliases,
-            string description)
+        /// <summary>
+        /// Number of parameters that can be provided (ie not including special parameters)
+        /// </summary>
+        public readonly int ProvidableRequiredParameters;
+
+        /// <summary>
+        /// Number of parameters that can be provided (ie not including special parameters)
+        /// </summary>
+        public readonly int ProvidableOptionalParameters;
+
+        public CommandMetadata(MethodInfo method, IEnumerable<string> aliases, string description)
         {
             Method = method;
-            Aliases = aliases;
+            Aliases = aliases.ToArray();
             Description = description;
             Parameters = method.GetParameters();
 
             for(var i = 0; i < Parameters.Length; i++)
             {
-                TotalParameters++;
+                var isSpecial = Parameters[i].IsSpecialParameter();
 
-                if(Parameters[i].IsOptional)
+                TotalParameters++;
+                if(!isSpecial)
+                {
+                    TotalProvidableParameters++;
+                }
+
+                if (Parameters[i].IsOptional || Parameters[i].IsParamsParameter())
                 {
                     OptionalParameters++;
+                    if (!isSpecial)
+                    {
+                        ProvidableOptionalParameters++;
+                    }
                 }
                 else
                 {
                     RequiredParameters++;
+                    if (!isSpecial)
+                    {
+                        ProvidableRequiredParameters++;
+                    }
                 }
             }
         }

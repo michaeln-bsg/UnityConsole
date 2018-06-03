@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Reflection;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace BeardPhantom.UConsole
 {
@@ -60,6 +63,26 @@ namespace BeardPhantom.UConsole
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Does this parameter have the params keyword?
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public static bool IsParamsParameter(this ParameterInfo info)
+        {
+            return info.GetCustomAttributes(typeof(ParamArrayAttribute), false).Length > 0;
+        }
+
+        /// <summary>
+        /// Will this parameter have its value passed in by the console system?
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public static bool IsSpecialParameter(this ParameterInfo info)
+        {
+            return info.ParameterType == typeof(Console);
         }
     }
 }

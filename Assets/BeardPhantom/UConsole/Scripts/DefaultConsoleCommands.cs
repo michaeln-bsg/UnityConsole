@@ -1,14 +1,17 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace BeardPhantom.UConsole
 {
     /// <summary>
     /// Provides game agnostic commands
     /// </summary>
-    public class DefaultConsoleCommands : AbstractConsoleCommandRegistry
+    public static class DefaultConsoleCommands
     {
         /// <summary>
         /// Error for when a PlayerPrefs key cannot be found
@@ -18,59 +21,84 @@ namespace BeardPhantom.UConsole
         /// <summary>
         /// Used for outputting text and creating less garbage
         /// </summary>
-        private readonly StringBuilder output = new StringBuilder();
+        private static readonly StringBuilder _output = new StringBuilder();
 
-        /// <inheritdoc />
-        public DefaultConsoleCommands(Console instance)
-            : base(instance) { }
-
-        [CommandAliases("?", "cmds")]
-        [CommandDescription(
-            "Shows help info about a command, or prints all commands")]
-        private string help(string cmdString = "")
+        [ConsoleCommand("help", "?", "cmds")]
+        [ConsoleCommandDescription("Shows help info about a command, or prints all commands")]
+        private static string Help(Console console, string cmdString = "")
         {
-            output.Length = 0;
+            _output.Length = 0;
 
             if(string.IsNullOrEmpty(cmdString))
             {
-                var cmds = Console.Commands.CommandList;
+                var cmds = console.Commands.CommandList;
 
                 for(var i = 0; i < cmds.Count; i++)
                 {
                     var cmd = cmds[i];
-                    output.AppendLine(string.Join(",", cmd.Aliases.ToArray()));
+                    _output.AppendLine(string.Join(",", cmd.Aliases.ToArray()));
                 }
             }
             else
             {
-                var cmd = Console.Commands.GetCommand(cmdString);
+                var cmd = console.Commands.GetCommand(cmdString);
 
                 if(cmd != null)
                 {
-                    output.AppendFormat(
-                        "{0}: {1}",
-                        string.Join("/", cmd.Aliases.ToArray()),
-                        cmd.Description);
+                    _output.AppendFormat("{0}: {1}", string.Join("/", cmd.Aliases.ToArray()), cmd.Description);
+                    if(cmd.TotalProvidableParameters > 0)
+                    {
+                        _output.AppendLine();
+                        _output.Append('(');
+                        for(var i = 0; i < cmd.Parameters.Length; i++)
+                        {
+                            var parameter = cmd.Parameters[i];
+
+                            if(parameter.IsSpecialParameter())
+                            {
+                                continue;
+                            }
+
+                            if(parameter.IsParamsParameter())
+                            {
+                                _output.Append("params ");
+                            }
+
+                            _output.AppendFormat("{0} ", parameter.ParameterType.Name);
+                            _output.Append(parameter.Name);
+
+                            if(parameter.IsOptional)
+                            {
+                                _output.AppendFormat(" = {0}", parameter.DefaultValue);
+                            }
+
+                            if(i < cmd.Parameters.Length - 1)
+                            {
+                                _output.Append(", ");
+                            }
+                        }
+                        _output.Append(')');
+                    }
                 }
                 else
                 {
-                    output.AppendFormat("COMMAND NOT FOUND: {0}", cmdString);
+                    _output.AppendFormat("COMMAND NOT FOUND: {0}", cmdString);
                 }
             }
 
-            return output.ToString();
+            return _output.ToString();
         }
 
-        [CommandAliases("set_console_alpha", "console_alpha")]
-        [CommandDescription("Adjusts the console's transparancy")]
-        private void set_console_transparancy(float alpha)
+        [ConsoleCommand("set_console_transparancy", "set_console_alpha", "console_alpha")]
+        [ConsoleCommandDescription("Adjusts the console's transparancy")]
+        private static void SetConsoleTransparancy(Console console, float alpha)
         {
-            Console.CanvasGroup.alpha = Mathf.Clamp(alpha, 0.3f, 1f);
+            console.CanvasGroup.alpha = Mathf.Clamp(alpha, 0.3f, 1f);
         }
 
-        [CommandAliases("quit", "qqq")]
-        [CommandDescription("Quits the game.")]
-        private void quit_game()
+        [ConsoleCommand("quit_game", "quit", "qqq")]
+        [ConsoleCommandDescription("Quits the game.")]
+        private static void QuitGame()
         {
             #if UNITY_EDITOR
             EditorApplication.isPlaying = false;
@@ -79,15 +107,16 @@ namespace BeardPhantom.UConsole
                         #endif
         }
 
-        [CommandAliases("cls")]
-        [CommandDescription("Clears the console output window.")]
-        private void clear()
+        [ConsoleCommand("clear", "cls")]
+        [ConsoleCommandDescription("Clears the console output window.")]
+        private static void Clear(Console console)
         {
-            Console.InputOutput.ClearOutput();
+            console.InputOutput.ClearOutput();
         }
 
-        [CommandDescription("Performs a console print test.")]
-        private string console_test(int length = 1000)
+        [ConsoleCommand("console_test")]
+        [ConsoleCommandDescription("Performs a console print test.")]
+        private static string ConsoleTest(int length = 1000)
         {
             const string RNDCHARS =
                 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -102,14 +131,23 @@ namespace BeardPhantom.UConsole
             return new string(stringChars);
         }
 
-        [CommandDescription("Returns a string from PlayerPrefs.")]
-        private string prefs_get(string key)
+        [ConsoleCommand("console_test2")]
+        [ConsoleCommandDescription("Performs a console print test.")]
+        private static string ConsoleTest2(params string[] echos)
+        {
+            return string.Join(",", echos);
+        }
+
+        [ConsoleCommand("prefs_get")]
+        [ConsoleCommandDescription("Returns a string from PlayerPrefs.")]
+        private static string PrefsGet(string key)
         {
             return PlayerPrefs.GetString(key, PREFS_KEY_NOT_FOUND);
         }
 
-        [CommandDescription("Returns an integer from PlayerPrefs.")]
-        private string prefs_get_i(string key)
+        [ConsoleCommand("prefs_get_int")]
+        [ConsoleCommandDescription("Returns an integer from PlayerPrefs.")]
+        private static string PrefsGetInt(string key)
         {
             if(PlayerPrefs.HasKey(key))
             {
@@ -119,8 +157,9 @@ namespace BeardPhantom.UConsole
             return PREFS_KEY_NOT_FOUND;
         }
 
-        [CommandDescription("Returns a float from PlayerPrefs.")]
-        private string prefs_get_f(string key)
+        [ConsoleCommand("prefs_get_float")]
+        [ConsoleCommandDescription("Returns a float from PlayerPrefs.")]
+        private static string PrefsGetFloat(string key)
         {
             if(PlayerPrefs.HasKey(key))
             {
@@ -130,36 +169,41 @@ namespace BeardPhantom.UConsole
             return PREFS_KEY_NOT_FOUND;
         }
 
-        [CommandDescription("Sets a string in PlayerPrefs.")]
-        private void prefs_set(string key, string value)
+        [ConsoleCommand("prefs_set")]
+        [ConsoleCommandDescription("Sets a string in PlayerPrefs.")]
+        private static void PrefsSet(string key, string value)
         {
             PlayerPrefs.SetString(key, value);
         }
 
-        [CommandDescription("Sets an integer in PlayerPrefs.")]
-        private void prefs_set_i(string key, int value)
+        [ConsoleCommand("prefs_set_int")]
+        [ConsoleCommandDescription("Sets an integer in PlayerPrefs.")]
+        private static void PrefsSetIn(string key, int value)
         {
             PlayerPrefs.SetInt(key, value);
         }
 
-        [CommandDescription("Sets a float in PlayerPrefs.")]
-        private void prefs_set_f(string key, float value)
+        [ConsoleCommand("prefs_set_float")]
+        [ConsoleCommandDescription("Sets a float in PlayerPrefs.")]
+        private static void PrefsSetFloat(string key, float value)
         {
             PlayerPrefs.SetFloat(key, value);
         }
 
-        [CommandDescription("Removes a value from PlayerPrefs.")]
-        private void prefs_del(string key)
+        [ConsoleCommand("prefs_del")]
+        [ConsoleCommandDescription("Removes a value from PlayerPrefs.")]
+        private static void PrefsDelete(string key)
         {
             PlayerPrefs.DeleteKey(key);
         }
 
-        [CommandDescription("Removes a value from PlayerPrefs.")]
-        private void prefs_del_all()
+        [ConsoleCommand("prefs_del_all")]
+        [ConsoleCommandDescription("Removes a value from PlayerPrefs.")]
+        private static void PrefsDeleteAll(Console console)
         {
             PlayerPrefs.DeleteAll();
 
-            Console.InputOutput.Print(
+            console.InputOutput.Print(
                 "PlayerPrefs.DeleteAll Success",
                 Color.green);
         }

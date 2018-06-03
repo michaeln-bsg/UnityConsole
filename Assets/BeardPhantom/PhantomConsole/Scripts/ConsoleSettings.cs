@@ -5,13 +5,14 @@ namespace BeardPhantom.PhantomConsole
     /// <summary>
     /// Behavior and visuals settings for a console
     /// </summary>
-    [CreateAssetMenu(menuName = "BeardPhantom/UConsole/UConsole Settings")]
+    [CreateAssetMenu(menuName = "BeardPhantom/PhantomConsole/PhantomConsole Settings")]
     public class ConsoleSettings : ScriptableObject
     {
         /// <summary>
         /// Does the console start open when created
         /// </summary>
-        [Header("General")] public bool StartOpen;
+        [Header("General")]
+        public bool StartOpen;
 
         /// <summary>
         /// Checked at console create time to see if the application command line arguments contain
@@ -22,7 +23,8 @@ namespace BeardPhantom.PhantomConsole
         /// <summary>
         /// Color used for default print
         /// </summary>
-        [Header("Colors")] public Color DefaultPrintColor = Color.white;
+        [Header("Colors")]
+        public Color DefaultPrintColor = Color.white;
 
         /// <summary>
         /// Color used when showing echo of submitted input
@@ -42,7 +44,8 @@ namespace BeardPhantom.PhantomConsole
         /// <summary>
         /// Input checked for opening/closing the console
         /// </summary>
-        [Header("Input")] public KeyCode[] ToggleConsole =
+        [Header("Input")]
+        public KeyCode[] ToggleConsole =
         {
             KeyCode.BackQuote
         };

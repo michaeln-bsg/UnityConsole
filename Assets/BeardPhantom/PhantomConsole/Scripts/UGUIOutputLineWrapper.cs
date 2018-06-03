@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
-    /// A wrapper class to provide UConsole UGUI Text objects
+    /// A wrapper class to provide PhantomConsole UGUI Text objects
     /// </summary>
     public class UGUIOutputLineWrapper : AbstractConsoleOutputLine
     {

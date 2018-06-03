@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
-    /// A wrapper class to provide UConsole UGUI InputField objects
+    /// A wrapper class to provide PhantomConsole UGUI InputField objects
     /// </summary>
     public class UGUIInputFieldConsoleWrapper : AbstractConsoleInputField
     {

@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
-    /// Various utility functions for UConsole
+    /// Various utility functions for PhantomConsole
     /// </summary>
     public static class ConsoleUtility
     {

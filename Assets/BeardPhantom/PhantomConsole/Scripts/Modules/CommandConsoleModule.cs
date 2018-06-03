@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace BeardPhantom.UConsole.Modules
+namespace BeardPhantom.PhantomConsole.Modules
 {
     /// <summary>
     /// Built-in module for handling parsing and executing commands

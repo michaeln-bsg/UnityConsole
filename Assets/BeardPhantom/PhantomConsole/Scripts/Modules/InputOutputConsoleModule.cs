@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace BeardPhantom.UConsole.Modules
+namespace BeardPhantom.PhantomConsole.Modules
 {
     /// <summary>
     /// Handles text input/output

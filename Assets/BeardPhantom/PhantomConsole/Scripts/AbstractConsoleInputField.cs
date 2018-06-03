@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 
-namespace BeardPhantom.UConsole
+namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
     /// Provides access to a GUI based input field

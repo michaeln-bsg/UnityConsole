@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace BeardPhantom.UConsole.Modules
+namespace BeardPhantom.PhantomConsole.Modules
 {
     /// <summary>
     /// Console module for browsing previously executed inputs

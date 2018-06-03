@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using UnityEngine;
 
-namespace BeardPhantom.UConsole.Examples
+namespace BeardPhantom.PhantomConsole.Examples
 {
     /// <summary>
     /// Example of creating a console, adding commands and running an auto-exec text file

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace BeardPhantom.UConsole
+namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
     /// Defines invocation metadata for a command

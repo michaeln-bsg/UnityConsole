@@ -1,6 +1,6 @@
 ﻿using UnityEngine.UI;
 
-namespace BeardPhantom.UConsole
+namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
     /// Used as a simple UI hitbox

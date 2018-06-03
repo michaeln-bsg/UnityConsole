@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BeardPhantom.UConsole
+namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
     /// Base class for defining a console command metadata attribute

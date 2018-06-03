@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace BeardPhantom.UConsole
+namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
     /// Provides game agnostic commands

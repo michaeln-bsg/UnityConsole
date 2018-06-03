@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BeardPhantom.UConsole.Modules
+namespace BeardPhantom.PhantomConsole.Modules
 {
     /// <summary>
     /// Handles console activation events

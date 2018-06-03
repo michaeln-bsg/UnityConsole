@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BeardPhantom.UConsole
+namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
     /// Type data for providing functionality to a console instance

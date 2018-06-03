@@ -3,7 +3,7 @@ using System.Reflection;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace BeardPhantom.UConsole
+namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
     /// Various utility functions for UConsole

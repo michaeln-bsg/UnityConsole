@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BeardPhantom.UConsole
+﻿namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
     /// Defines a function as being a command

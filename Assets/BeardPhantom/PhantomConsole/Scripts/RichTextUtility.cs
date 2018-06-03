@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BeardPhantom.UConsole
+namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
     /// Various utilities for formatting strings for rich text

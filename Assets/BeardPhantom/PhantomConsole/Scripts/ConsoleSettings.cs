@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BeardPhantom.UConsole
+namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
     /// Behavior and visuals settings for a console

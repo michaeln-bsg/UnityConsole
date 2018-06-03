@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using BeardPhantom.UConsole.Modules;
+using BeardPhantom.PhantomConsole.Modules;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeardPhantom.UConsole
+namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
     /// Core class for the console instance

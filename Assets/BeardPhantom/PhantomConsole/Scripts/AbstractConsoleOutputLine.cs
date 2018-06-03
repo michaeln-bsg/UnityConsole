@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BeardPhantom.UConsole
+namespace BeardPhantom.PhantomConsole
 {
     /// <summary>
     /// Provides abstract access to a UI based label

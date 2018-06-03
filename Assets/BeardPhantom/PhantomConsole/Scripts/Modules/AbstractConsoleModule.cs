@@ -1,4 +1,4 @@
-﻿namespace BeardPhantom.UConsole.Modules
+﻿namespace BeardPhantom.PhantomConsole.Modules
 {
     /// <summary>
     /// Represents a block of console functionality.

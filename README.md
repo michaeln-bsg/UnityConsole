@@ -23,7 +23,7 @@ Make your own Commands! Optional parameters and params keyword are supported:
 public class GameConsoleCommands
 {
     [ConsoleCommand("set_player_pos", "player_pos", "spp")]
-	[CommandDescription("Teleports the player to xyz")]
+    [CommandDescription("Teleports the player to xyz")]
     private void SetPlayerPosition(float x, float y, float z)
     {
         // Get player instance and set transform.position
@@ -42,7 +42,7 @@ public class GameConsoleCommands
         }
     }
 	
-	[ConsoleCommand("echo")]
+    [ConsoleCommand("echo")]
     private string Echo(params string[] echo)
     {
         return string.Join(",", echo);

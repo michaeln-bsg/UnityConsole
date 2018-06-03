@@ -1,10 +1,10 @@
-# UConsole
+# PhantomConsole
 Easy-to-use developer console built with UGUI, with easy support for other UI solutions such as TextMeshPro.
 
-![alt text](https://github.com/thebeardphantom/UConsole/blob/master/img/console_test.gif "Example")
+![alt text](https://github.com/thebeardphantom/PhantomConsole/blob/master/img/console_test.gif "Example")
 
 ## Quick-Start Guide
-I strongly encourage devs that use UConsole to take a look at the built-in scripts to get a sense of how custom integration functions. However, here's a few example snippets to get started super fast.
+I strongly encourage devs that use PhantomConsole to take a look at the built-in scripts to get a sense of how custom integration functions. However, here's a few example snippets to get started super fast.
 
 Use RuntimeInitializeOnLoadMethod to create a console instance:
 ```csharp
@@ -12,34 +12,25 @@ Use RuntimeInitializeOnLoadMethod to create a console instance:
 private static void AppStart()
 {
     _console = ConsoleUtility.Create(ConsolePrefab);
-    var commandRegistries = new[]
-    {
-        typeof(DefaultConsoleCommands),
-    };
-    _console.ResetConsole(new ConsoleSetupOptions(commandRegistries));
+    _console.ResetConsole(new ConsoleSetupOptions(true));
 }
 ```
-Make your own CommandRegistry! Optional parameters are supported:
+Make your own Commands! Optional parameters and params keyword are supported:
 ```csharp
 /// <summary>
 /// Provides game agnostic commands
 /// </summary>
-public class GameConsoleCommands : AbstractConsoleCommandRegistry
+public class GameConsoleCommands
 {
-    /// <inheritdoc />
-    public GameConsoleCommands(Console instance)
-        : base(instance) { }
-
+    [ConsoleCommand("set_player_pos", "player_pos", "spp")]
     [CommandDescription("Teleports the player to xyz")]
-    [CommandAliases("player_pos", "spp")]
-    private void set_player_pos(float x, float y, float z)
+    private void SetPlayerPosition(float x, float y, float z)
     {
         // Get player instance and set transform.position
     }
-
-    // Commands must have at least one CommandAttribute!
-    [CommandAliases]
-    private void respawn_player(bool kill = false)
+	
+    [ConsoleCommand("respawn_player")]
+    private void RespawnPlayer(bool kill = false)
     {
         if(kill)
         {
@@ -49,6 +40,12 @@ public class GameConsoleCommands : AbstractConsoleCommandRegistry
         {
             // Just teleport player
         }
+    }
+	
+    [ConsoleCommand("echo")]
+    private string Echo(params string[] echo)
+    {
+        return string.Join(",", echo);
     }
 }
 ```
@@ -97,14 +94,10 @@ public class ExampleConsoleModule : AbstractConsoleModule
 private static void AppStart()
 {
     _console = ConsoleUtility.Create(ConsolePrefab);
-    var commandRegistries = new[]
-    {
-        typeof(DefaultConsoleCommands),
-    };
     var customModules = new[]
     {
         typeof(ExampleConsoleModule),
     };
-    _console.ResetConsole(new ConsoleSetupOptions(commandRegistries, customModules));
+    _console.ResetConsole(new ConsoleSetupOptions(true, customModules));
 }
 ```

@@ -6,7 +6,7 @@ namespace BeardPhantom.PhantomConsole
     /// <summary>
     /// Provides access to a GUI based input field
     /// </summary>
-    public abstract class AbstractConsoleInputField : MonoBehaviour
+    public abstract class ConsoleInputField : MonoBehaviour
     {
         /// <summary>
         /// Get/set access to the current input value

@@ -16,8 +16,8 @@ namespace BeardPhantom.PhantomConsole
         /// <summary>
         /// Type-to-instance mapping of custom loaded modules
         /// </summary>
-        private readonly Dictionary<Type, AbstractConsoleModule> _customModules
-            = new Dictionary<Type, AbstractConsoleModule>();
+        private readonly Dictionary<Type, ConsoleModule> _customModules
+            = new Dictionary<Type, ConsoleModule>();
 
         /// <summary>
         /// Event invoked when console is toggled open or closed
@@ -39,7 +39,7 @@ namespace BeardPhantom.PhantomConsole
         /// Input field
         /// </summary>
         [SerializeField]
-        private AbstractConsoleInputField _inputField;
+        private ConsoleInputField _inputField;
 
         /// <summary>
         /// Output window scroll rect
@@ -51,7 +51,13 @@ namespace BeardPhantom.PhantomConsole
         /// Output line prefab for showing output
         /// </summary>
         [SerializeField]
-        private AbstractConsoleOutputLine _outputLinePrefab;
+        private ConsoleOutputLine _outputLinePrefab;
+
+        /// <summary>
+        /// Window for displaying auto complete results
+        /// </summary>
+        [SerializeField]
+        private AutoCompleteWindow _autoCompleteWindow;
 
         /// <summary>
         /// The main container RectTransform for the console
@@ -69,38 +75,6 @@ namespace BeardPhantom.PhantomConsole
         #region Properties
 
         /// <summary>
-        /// Module accessor for settings
-        /// </summary>
-        public ConsoleSettings Settings
-        {
-            get { return _settings; }
-        }
-
-        /// <summary>
-        /// Module accessor for input field
-        /// </summary>
-        public AbstractConsoleInputField InputField
-        {
-            get { return _inputField; }
-        }
-
-        /// <summary>
-        /// Module accessor for output window scroll rect
-        /// </summary>
-        public ScrollRect ScrollRect
-        {
-            get { return _scrollRect; }
-        }
-
-        /// <summary>
-        /// Module accessor for output prefab
-        /// </summary>
-        public AbstractConsoleOutputLine OutputLinePrefab
-        {
-            get { return _outputLinePrefab; }
-        }
-
-        /// <summary>
         /// Default input-output module
         /// </summary>
         public InputOutputConsoleModule InputOutput { get; private set; }
@@ -116,9 +90,55 @@ namespace BeardPhantom.PhantomConsole
         public InputHistoryConsoleModule InputHistory { get; private set; }
 
         /// <summary>
+        /// Default auto complete module
+        /// </summary>
+        public AutoCompleteConsoleModule AutoComplete { get; private set; }
+
+        /// <summary>
         /// CanvasGroup attached to the console
         /// </summary>
         public CanvasGroup CanvasGroup { get; private set; }
+
+        /// <summary>
+        /// Module accessor for settings
+        /// </summary>
+        public ConsoleSettings Settings
+        {
+            get { return _settings; }
+        }
+
+        /// <summary>
+        /// Module accessor for input field
+        /// </summary>
+        public ConsoleInputField InputField
+        {
+            get { return _inputField; }
+        }
+
+        /// <summary>
+        /// Module accessor for output window scroll rect
+        /// </summary>
+        public ScrollRect ScrollRect
+        {
+            get { return _scrollRect; }
+        }
+
+        /// <summary>
+        /// Results for auto complete window
+        /// </summary>
+        public AutoCompleteWindow AutoCompleteWindow
+        {
+            get { return _autoCompleteWindow; }
+            set { _autoCompleteWindow = value; }
+        }
+
+        /// <summary>
+        /// Module accessor for output prefab
+        /// </summary>
+        public ConsoleOutputLine OutputLinePrefab
+        {
+            get { return _outputLinePrefab; }
+        }
 
         /// <summary>
         /// Whether the console is currently open
@@ -150,9 +170,9 @@ namespace BeardPhantom.PhantomConsole
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T GetModule<T>() where T : AbstractConsoleModule
+        public T GetModule<T>() where T : ConsoleModule
         {
-            AbstractConsoleModule value;
+            ConsoleModule value;
             _customModules.TryGetValue(typeof(T), out value);
 
             return (T) value;
@@ -176,19 +196,19 @@ namespace BeardPhantom.PhantomConsole
             InputOutput = new InputOutputConsoleModule(this);
             InputHistory = new InputHistoryConsoleModule(this);
             Commands = new CommandConsoleModule(this);
+            AutoComplete = new AutoCompleteConsoleModule(this);
 
-            AddModule(InputOutput);
-            AddModule(InputHistory);
-            AddModule(Commands);
+            AddModules(InputOutput, InputHistory, Commands, AutoComplete);
 
             foreach(var t in options.ModuleTypes)
             {
-                var instance =
-                    (AbstractConsoleModule) Activator.CreateInstance(
-                        t,
-                        (object) this);
-
+                var instance = (ConsoleModule) Activator.CreateInstance(t, (object) this);
                 AddModule(instance);
+            }
+
+            foreach(var m in _customModules)
+            {
+                m.Value.Initialize();
             }
 
             if(ConsoleReset != null)
@@ -198,13 +218,24 @@ namespace BeardPhantom.PhantomConsole
         }
 
         /// <summary>
-        /// Internal function for adding a module by type
+        /// Internal function for adding modules
+        /// </summary>
+        /// <param name="modules"></param>
+        private void AddModules(params ConsoleModule[] modules)
+        {
+            foreach(var module in modules)
+            {
+                AddModule(module);
+            }
+        }
+
+        /// <summary>
+        /// Adds a module to modules list
         /// </summary>
         /// <param name="module"></param>
-        private void AddModule(AbstractConsoleModule module)
+        private void AddModule(ConsoleModule module)
         {
             _customModules.Add(module.GetType(), module);
-            module.Initialize();
         }
 
         private void Awake()
@@ -221,8 +252,7 @@ namespace BeardPhantom.PhantomConsole
         {
             IsOpen = _settings.StartOpen
                 || !string.IsNullOrEmpty(_settings.CommandLineOpenArg)
-                && Environment.CommandLine.EndsWith(
-                    _settings.CommandLineOpenArg);
+                && Environment.CommandLine.EndsWith(_settings.CommandLineOpenArg);
         }
 
         /// <summary>
@@ -239,7 +269,10 @@ namespace BeardPhantom.PhantomConsole
             {
                 foreach(var m in _customModules.Values)
                 {
-                    m.Update();
+                    if(m.Enabled)
+                    {
+                        m.Update();
+                    }
                 }
             }
         }

@@ -31,6 +31,27 @@ namespace BeardPhantom.PhantomConsole
         }
 
         /// <summary>
+        /// Returns true if string is null, empty, or entirely whitespace
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool IsNullOrWhitespace(string str)
+        {
+            if(str == null)
+            {
+                return true;
+            }
+            for(var i = 0; i < str.Length; i++)
+            {
+                if(!char.IsWhiteSpace(str[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Creates a new console via a GameObject
         /// </summary>
         /// <param name="prefab"></param>

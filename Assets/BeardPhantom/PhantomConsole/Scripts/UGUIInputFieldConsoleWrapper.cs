@@ -8,7 +8,7 @@ namespace BeardPhantom.PhantomConsole
     /// <summary>
     /// A wrapper class to provide PhantomConsole UGUI InputField objects
     /// </summary>
-    public class UGUIInputFieldConsoleWrapper : AbstractConsoleInputField
+    public class UGUIInputFieldConsoleWrapper : ConsoleInputField
     {
         [SerializeField] private InputField _inputField;
 

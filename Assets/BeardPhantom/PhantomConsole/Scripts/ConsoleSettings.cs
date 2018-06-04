@@ -67,6 +67,23 @@ namespace BeardPhantom.PhantomConsole
         };
 
         /// <summary>
+        /// Input checked for navigating backwards in the console input history
+        /// </summary>
+        public KeyCode[] AutoCompleteBackwards =
+        {
+            KeyCode.UpArrow
+        };
+
+        /// <summary>
+        /// Input checked for navigating forwads in the console input history
+        /// </summary>
+        public KeyCode[] AutoCompleteForwards =
+        {
+            KeyCode.DownArrow,
+            KeyCode.Tab
+        };
+
+        /// <summary>
         /// Input checked for submitting input to the console
         /// </summary>
         public KeyCode[] SubmitInput =

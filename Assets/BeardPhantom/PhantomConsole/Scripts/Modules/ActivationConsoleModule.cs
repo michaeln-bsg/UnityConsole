@@ -5,15 +5,14 @@ namespace BeardPhantom.PhantomConsole.Modules
     /// <summary>
     /// Handles console activation events
     /// </summary>
-    public class ActivationConsoleModule : AbstractConsoleModule
+    public class ActivationConsoleModule : ConsoleModule
     {
         /// <summary>
         /// Previously used timescale
         /// </summary>
         private float? _cachedTimescale;
 
-        public ActivationConsoleModule(Console console)
-            : base(console) { }
+        public ActivationConsoleModule(Console console) : base(console) { }
 
         /// <inheritdoc />
         public override void Initialize()

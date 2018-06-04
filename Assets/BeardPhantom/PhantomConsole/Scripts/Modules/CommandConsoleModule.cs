@@ -10,7 +10,7 @@ namespace BeardPhantom.PhantomConsole.Modules
     /// <summary>
     /// Built-in module for handling parsing and executing commands
     /// </summary>
-    public class CommandConsoleModule : AbstractConsoleModule
+    public class CommandConsoleModule : ConsoleModule
     {
         /// <summary>
         /// Name-to-index mapping of commands

@@ -6,7 +6,7 @@ namespace BeardPhantom.PhantomConsole.Modules
     /// <summary>
     /// Console module for browsing previously executed inputs
     /// </summary>
-    public class InputHistoryConsoleModule : AbstractConsoleModule
+    public class InputHistoryConsoleModule : ConsoleModule
     {
         /// <summary>
         /// All inputs
@@ -18,8 +18,7 @@ namespace BeardPhantom.PhantomConsole.Modules
         /// </summary>
         private int _inputHistoryIndex;
 
-        public InputHistoryConsoleModule(Console console)
-            : base(console) { }
+        public InputHistoryConsoleModule(Console console) : base(console) { }
 
         /// <inheritdoc />
         public override void Initialize()
@@ -38,14 +37,12 @@ namespace BeardPhantom.PhantomConsole.Modules
         {
             var direction = 0;
 
-            if(ConsoleUtility.GetAnyInputDown(
-                Console.Settings.InputHistoryBackwards))
+            if(ConsoleUtility.GetAnyInputDown(Console.Settings.InputHistoryBackwards))
             {
                 // Go backwards
                 direction = -1;
             }
-            else if(ConsoleUtility.GetAnyInputDown(
-                Console.Settings.InputHistoryForwards))
+            else if(ConsoleUtility.GetAnyInputDown(Console.Settings.InputHistoryForwards))
             {
                 // Go forwards
                 direction = 1;
@@ -53,15 +50,11 @@ namespace BeardPhantom.PhantomConsole.Modules
 
             if(direction != 0)
             {
-                _inputHistoryIndex = Mathf.Clamp(
-                    _inputHistoryIndex + direction,
-                    0,
-                    Mathf.Max(0, _inputHistory.Count - 1));
+                _inputHistoryIndex = Mathf.Clamp(_inputHistoryIndex + direction, 0, Mathf.Max(0, _inputHistory.Count - 1));
 
                 if(_inputHistory.Count > 0)
                 {
-                    Console.InputOutput.SetInput(
-                        _inputHistory[_inputHistoryIndex]);
+                    Console.InputOutput.SetInput(_inputHistory[_inputHistoryIndex]);
                 }
             }
         }

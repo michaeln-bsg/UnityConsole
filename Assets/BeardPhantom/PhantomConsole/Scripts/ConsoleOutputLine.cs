@@ -5,7 +5,7 @@ namespace BeardPhantom.PhantomConsole
     /// <summary>
     /// Provides abstract access to a UI based label
     /// </summary>
-    public abstract class AbstractConsoleOutputLine : MonoBehaviour
+    public abstract class ConsoleOutputLine : MonoBehaviour
     {
         /// <summary>
         /// Get/set access to the label's current text value

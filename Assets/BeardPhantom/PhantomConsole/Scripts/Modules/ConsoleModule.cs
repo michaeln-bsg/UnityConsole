@@ -3,14 +3,19 @@
     /// <summary>
     /// Represents a block of console functionality.
     /// </summary>
-    public abstract class AbstractConsoleModule
+    public abstract class ConsoleModule
     {
+        /// <summary>
+        /// Whether this module will update
+        /// </summary>
+        public bool Enabled = true;
+
         /// <summary>
         /// Console instance
         /// </summary>
         protected readonly Console Console;
 
-        public AbstractConsoleModule(Console console)
+        protected ConsoleModule(Console console)
         {
             Console = console;
         }

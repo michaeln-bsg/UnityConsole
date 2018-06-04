@@ -7,7 +7,7 @@ namespace BeardPhantom.PhantomConsole.Modules
     /// <summary>
     /// Handles text input/output
     /// </summary>
-    public class InputOutputConsoleModule : AbstractConsoleModule
+    public class InputOutputConsoleModule : ConsoleModule
     {
         public InputOutputConsoleModule(Console console)
             : base(console) { }
@@ -27,7 +27,7 @@ namespace BeardPhantom.PhantomConsole.Modules
         /// <summary>
         /// Object pool for getting output line objects
         /// </summary>
-        private SimplePrefabPool<AbstractConsoleOutputLine> _linePool;
+        private SimplePrefabPool<ConsoleOutputLine> _linePool;
 
         #endregion
 
@@ -36,9 +36,7 @@ namespace BeardPhantom.PhantomConsole.Modules
         /// <inheritdoc />
         public override void Initialize()
         {
-            _linePool =
-                new SimplePrefabPool<AbstractConsoleOutputLine>(
-                    Console.OutputLinePrefab);
+            _linePool = new SimplePrefabPool<ConsoleOutputLine>(Console.OutputLinePrefab);
 
             _linePool.Allocate(100, Console.ScrollRect.content);
             Console.InputField.AddEndEditListener(SubmitInput);
@@ -164,7 +162,7 @@ namespace BeardPhantom.PhantomConsole.Modules
 
         public void SubmitInput(string input)
         {
-            if(input != null && !IsWhitespaceString(input))
+            if(!ConsoleUtility.IsNullOrWhitespace(input))
             {
                 Console.StartCoroutine(DelayTrySubmit(input));
             }
@@ -232,24 +230,6 @@ namespace BeardPhantom.PhantomConsole.Modules
             LogType type)
         {
             Print(string.Format("[{0}] {1}\n{2}", type, condition, stackTrace));
-        }
-
-        /// <summary>
-        /// Whether this string is purely whitespace
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        private bool IsWhitespaceString(string input)
-        {
-            for(var i = 0; i < input.Length; i++)
-            {
-                if(!char.IsWhiteSpace(input[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         /// <summary>

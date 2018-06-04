@@ -6,7 +6,7 @@ namespace BeardPhantom.PhantomConsole
     /// <summary>
     /// A wrapper class to provide PhantomConsole UGUI Text objects
     /// </summary>
-    public class UGUIOutputLineWrapper : AbstractConsoleOutputLine
+    public class UGUIOutputLineWrapper : ConsoleOutputLine
     {
         [SerializeField] private Text _text;
 

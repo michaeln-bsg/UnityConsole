@@ -34,7 +34,7 @@ namespace BeardPhantom.PhantomConsole
                 if(i < results.Count)
                 {
                     _rowLabels[i].Text = i == _rowLabels.Length - 1
-                        ? string.Format("<{0} more results>", results.Count - _rowLabels.Length - 1)
+                        ? string.Format("<{0} more results>", results.Count - (_rowLabels.Length - 2))
                         : results[i];
                 }
             }

@@ -139,8 +139,8 @@ namespace BeardPhantom.PhantomConsole.Modules
                     }
                     else
                     {
-                        var value = currentParamIndex >= splitInput.Length 
-                            ? parameter.DefaultValue 
+                        var value = currentParamIndex >= splitInput.Length
+                            ? parameter.DefaultValue
                             : splitInput[currentParamIndex];
                         passedValues.Add(Convert.ChangeType(value, parameter.ParameterType));
                     }
